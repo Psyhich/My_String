@@ -12,23 +12,27 @@ namespace Exercise_1
 	{ 
 	public:
 		// Using rule of 3
-		CMyString(const char *charsSequence="");
+		CMyString(const char *cszCharsSequence="");
 		
-		CMyString(const CMyString& cmsStringToCopy);
-		CMyString& operator=(const CMyString& cmsStringToCopy);
+		CMyString(const CMyString& cStringToCopy);
+		CMyString& operator=(const CMyString& cStringToCopy);
 
 		~CMyString();
 
-		// Other methods
-		inline const std::size_t size() { return m_sSize;}
-		inline const char* data() const { return m_cData; }
+		inline const std::size_t size() const noexcept { return m_nSize;}
+		inline const char* data() const noexcept { return m_szData; }
 
-		inline const char operator[](std::size_t sIndex) const noexcept { return m_cData[sIndex]; }
+		inline const char operator[](std::size_t sIndex) const { return m_szData[sIndex]; }
+		inline char& operator[](std::size_t sIndex) { return m_szData[sIndex]; }
 	private:
-		std::size_t m_sSize;
-		char *m_cData{NULL};
+		// In my task to write everything by myself, so I dont use C's string.h 
+		static std::size_t GetStringLength(const char *cpszStringToCount) noexcept;
+		static void CopyString(const char *cpszStringToCopy, char *pszStringToPaste, std::size_t nCountOfChars);
+	private:
+		std::size_t m_nSize;
+		char *m_szData{nullptr};
 	};
 }
 
 
-#endif
+#endif // MY_STRING_G

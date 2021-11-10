@@ -1,61 +1,72 @@
 #include "my_string.h"
+#include <cstddef>
 
-Exercise_1::CMyString::CMyString(const char* charsSequence) 
-{
-	size_t sCurrentIndex = 0;
-	char cCurrentChar = charsSequence[sCurrentIndex];
+std::size_t Exercise_1::CMyString::GetStringLength(const char *cpszStringToCount) noexcept {
+	std::size_t nStringLength = 0;
+	char cCurrentChar = cpszStringToCount[0];
 	while(cCurrentChar != '\0')
 	{
-		sCurrentIndex++;
-		cCurrentChar = charsSequence[sCurrentIndex];
+		++nStringLength;
+		cCurrentChar = cpszStringToCount[nStringLength];
 	}
-	m_sSize = sCurrentIndex + 1;
-	m_cData = new char[m_sSize];
+	// Adding 1 because string is zero terminated
+	return nStringLength + 1;
+}
 
-	
-	for(sCurrentIndex = 0; sCurrentIndex < m_sSize; sCurrentIndex++)
+void Exercise_1::CMyString::CopyString(const char *cpszStringToCopy, char *pszStringToPaste, std::size_t nCountOfChars)
+{
+	for(std::size_t nIndex = 0; nIndex < nCountOfChars; nIndex++)
 	{
-		m_cData[sCurrentIndex] = charsSequence[sCurrentIndex];
+		pszStringToPaste[nIndex] = cpszStringToCopy[nIndex];
 	}
 }
 
-// Copy operators
-Exercise_1::CMyString::CMyString(const Exercise_1::CMyString& cmsStringToCopy)
+Exercise_1::CMyString::CMyString(const char* cszCharsSequence) 
+{
+	m_nSize = GetStringLength(cszCharsSequence);
+	m_szData = new char[m_nSize];
+
+	CopyString(cszCharsSequence, m_szData, m_nSize);
+}
+
+Exercise_1::CMyString::CMyString(const Exercise_1::CMyString& cStringToCopy)
 {
 	// Cleaning data we used before
-	if(m_cData != NULL)
+	bool shouldCleanup = m_szData != nullptr && m_nSize != cStringToCopy.m_nSize;
+	if(shouldCleanup)
 	{
-		delete[] m_cData;
+		delete[] m_szData;
 	}
-
-	m_sSize = cmsStringToCopy.m_sSize;
-	m_cData = new char[m_sSize];
+	// Doing check if we need to reinitialize the char array
+	if(m_szData == nullptr || shouldCleanup)
+	{
+		m_nSize = cStringToCopy.m_nSize;
+		m_szData = new char[m_nSize];
+	}
 	
-	for(size_t sCurrentIndex = 0; sCurrentIndex < m_sSize; sCurrentIndex++)
-	{
-		m_cData[sCurrentIndex] = cmsStringToCopy.m_cData[sCurrentIndex];
-	}
+	CopyString(cStringToCopy.data(), m_szData, m_nSize);
 }
 
-Exercise_1::CMyString& Exercise_1::CMyString::operator=(const Exercise_1::CMyString& cmsStringToCopy)
+Exercise_1::CMyString& Exercise_1::CMyString::operator=(const Exercise_1::CMyString& cStringToCopy)
 {
-	if(&cmsStringToCopy == this) 
+	if(&cStringToCopy == this) 
 	{
 		return *this;
 	}
 	// Cleaning data we used before
-	if(m_cData != NULL)
+	bool shouldCleanup = m_szData != nullptr && m_nSize != cStringToCopy.m_nSize;
+	if(shouldCleanup)
 	{
-		delete[] m_cData;
+		delete[] m_szData;
 	}
-
-	m_sSize = cmsStringToCopy.m_sSize;
-	m_cData = new char[m_sSize];
+	// Doing check if we need to reinitialize the char array
+	if(m_szData == nullptr || shouldCleanup)
+	{
+		m_nSize = cStringToCopy.m_nSize;
+		m_szData = new char[m_nSize];
+	}
 	
-	for(size_t sCurrentIndex = 0; sCurrentIndex < m_sSize; sCurrentIndex++)
-	{
-		m_cData[sCurrentIndex] = cmsStringToCopy.m_cData[sCurrentIndex];
-	}
+	CopyString(cStringToCopy.data(), m_szData, m_nSize);
 
 	return *this;
 }
@@ -63,5 +74,7 @@ Exercise_1::CMyString& Exercise_1::CMyString::operator=(const Exercise_1::CMyStr
 // Destructor
 Exercise_1::CMyString::~CMyString()
 {
-	delete[] m_cData;
+	if(m_szData != nullptr){
+		delete[] m_szData;
+	}
 }

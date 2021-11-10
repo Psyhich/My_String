@@ -4,45 +4,39 @@
 class CMyStringFixture : public ::testing::Test
 {
 protected:
-	Exercise_1::CMyString cmsMyString;
+	Exercise_1::CMyString myString;
 	const size_t sTestDataLength{17};
-	const char cTestData[17]{"Some test string"};
+	const char szTestData[17]{"Some test string"};
 
 public:
 	void SetUp() override
 	{
-		cmsMyString = Exercise_1::CMyString(cTestData);
+		myString = Exercise_1::CMyString(szTestData);
 	}
 };
 
 TEST_F(CMyStringFixture, DataCorrectnesTest) 
 {
 
-	ASSERT_EQ(sTestDataLength, cmsMyString.size());
+	ASSERT_EQ(sTestDataLength, myString.size());
 
-	for(std::size_t sCurrentIndex = 0; sCurrentIndex < cmsMyString.size(); sCurrentIndex++)
-	{
-		ASSERT_EQ(cTestData[sCurrentIndex], cmsMyString[sCurrentIndex]);
-	}
-	ASSERT_EQ(cTestData[sTestDataLength - 1], '\0');
+	ASSERT_STREQ(szTestData, myString.data());
+
+	ASSERT_EQ(szTestData[sTestDataLength - 1], '\0');
 }
 
 TEST_F(CMyStringFixture, DataCopyTest)
 {
-	Exercise_1::CMyString cmsCopiedString{cmsMyString};
+	Exercise_1::CMyString copiedString{myString};
 
-	ASSERT_EQ(cmsMyString.size(), cmsCopiedString.size());
+	ASSERT_EQ(myString.size(), copiedString.size());
 
-	for(std::size_t sCurrentIndex = 0; sCurrentIndex < cmsMyString.size(); sCurrentIndex++){
-		ASSERT_EQ(cmsMyString[sCurrentIndex], cmsCopiedString[sCurrentIndex]);
-	}
+	ASSERT_STREQ(myString.data(), copiedString.data());
 
-	Exercise_1::CMyString cmsOperatorCopiedString{cmsMyString};
+	Exercise_1::CMyString operatorCopiedString{myString};
 
-	ASSERT_EQ(cmsMyString.size(), cmsOperatorCopiedString.size());
+	ASSERT_EQ(myString.size(), operatorCopiedString.size());
 
-	for(std::size_t sCurrentIndex = 0; sCurrentIndex < cmsMyString.size(); sCurrentIndex++){
-		ASSERT_EQ(cmsMyString[sCurrentIndex], cmsOperatorCopiedString[sCurrentIndex]);
-	}
+	ASSERT_STREQ(myString.data(), operatorCopiedString.data());
 }
 
