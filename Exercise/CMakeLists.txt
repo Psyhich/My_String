@@ -34,6 +34,13 @@ set(SOURCES include/my_string.h src/my_string.cpp)
 set(MAIN src/main.cpp)
 set(TESTS src/tests.cpp)
 
+# Making all warnings errors and turning on pedantic feature in GCC
+if(MSVC)
+  add_compile_options(/W4 /WX)
+else()
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+endif()
+
 find_package(Threads REQUIRED)
 
 CheckHasModule(GTest)
@@ -71,7 +78,7 @@ include(GoogleTest)
 gtest_discover_tests(tests)
 
 # Automaticaly running all tests on build
-add_custom_command(TARGET tests
+add_custom_command(TARGET main
                    POST_BUILD
                    COMMAND ctest -C $<CONFIGURATION> --output-on-failure)
 
