@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
 #include "my_string.h"
+#define TEST_DATA_LENGTH 17
+
 class CMyStringFixture : public ::testing::Test
 {
 protected:
 	Exercise_1::CMyString myString;
-	const size_t sTestDataLength{17};
-	const char szTestData[17]{"Some test string"};
+	const size_t sTestDataLength{TEST_DATA_LENGTH};
+	const char szTestData[TEST_DATA_LENGTH]{"Some test string"};
 
 public:
 	void SetUp() override
