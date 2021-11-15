@@ -31,10 +31,11 @@ namespace Exercise_1
 		inline char& operator[](std::size_t sIndex) { return m_szData[sIndex]; }
 	private:
 		// In my task to write everything by myself, so I dont use C's string.h 
-		static std::size_t GetStringLength(const char *cpszStringToCount) noexcept;
+		static std::size_t GetStringLength(const char *cszStringToCount) noexcept;
 		void CopyString(const char *cszStringToCopy);
 		void AppendToString(const char *cszStringToAppend);
 		void ReinitializeAndCopy(const char* cpszStringToCopy, const std::size_t& nStringLength);
+		static char* TryToAllocate(const size_t nLength) noexcept;
 	private:
 		std::size_t m_nSize{0};
 		char *m_szData{nullptr};

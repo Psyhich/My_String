@@ -3,17 +3,20 @@
 
 #include "my_string.h"
 
+#define TEST_DATA_LENGTH 17
+#define SECOND_TEST_DATA_LENGTH 19
+
 class CMyStringFixture : public ::testing::Test
 {
 protected:
 	Exercise_1::CMyString myString;
 	Exercise_1::CMyString secondString;
 
-	const size_t nTestDataLength{17};
-	const char szTestData[17]{"Some test string"};
+	const size_t nTestDataLength{TEST_DATA_LENGTH};
+	const char szTestData[TEST_DATA_LENGTH]{"Some test string"};
 
-	const size_t nSecondStringLength{19};
-	const char szSecondTestString[19]{"Second test string"};
+	const size_t nSecondStringLength{SECOND_TEST_DATA_LENGTH};
+	const char szSecondTestString[SECOND_TEST_DATA_LENGTH]{"Second test string"};
 
 public:
 	void SetUp() override

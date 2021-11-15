@@ -1,5 +1,21 @@
-#include "my_string.h"
 #include <cstddef>
+#include <new>
+#include <iostream>
+
+#include "my_string.h"
+
+char* Exercise_1::CMyString::TryToAllocate(const size_t nLength) noexcept {
+	char *pcAllocated;
+	try
+	{
+		pcAllocated = new char[nLength];
+	} catch(std::bad_alloc& err)
+	{
+		pcAllocated = nullptr;
+		printf("Failed to allocate character of length: %ld\n", nLength);
+	}
+	return pcAllocated;
+}
 
 std::size_t Exercise_1::CMyString::GetStringLength(const char *cszStringToCount) noexcept {
 	std::size_t nStringLength = 0;
@@ -25,7 +41,6 @@ void Exercise_1::CMyString::CopyString(const char *cszStringToCopy)
 
 void Exercise_1::CMyString::AppendToString(const char *cszStringToAppend)
 {
-	
 	size_t nTerminantIndex = GetStringLength(m_szData) - 1;
 	for(size_t nIndex = nTerminantIndex; true; nIndex++)
 	{
@@ -36,7 +51,6 @@ void Exercise_1::CMyString::AppendToString(const char *cszStringToAppend)
 			break;
 		}
 	}
-
 }
 
 void Exercise_1::CMyString::Insert(const char* cszStringToInsert, size_t nStartPosition, size_t nTimesToInsert)
@@ -79,16 +93,17 @@ void Exercise_1::CMyString::Insert(const char* cszStringToInsert, size_t nStartP
 
 void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, const std::size_t& nStringLength)
 {
-	bool shouldCleanup = m_szData != nullptr && m_nSize != nStringLength;
-	if(shouldCleanup)
+	bool bShouldCleanup = m_szData != nullptr && m_nSize != nStringLength;
+	// Cleaning data we used before
+	if(bShouldCleanup)
 	{
 		delete[] m_szData;
 	}
 	// Doing check if we need to reinitialize the char array
-	if(m_szData == nullptr || shouldCleanup)
+	if(m_szData == nullptr || bShouldCleanup)
 	{
 		m_nSize = nStringLength;
-		m_szData = new char[m_nSize];
+		m_szData = TryToAllocate(m_nSize);
 	}
 	
 	CopyString(cszStringToCopy);
@@ -121,7 +136,8 @@ Exercise_1::CMyString& Exercise_1::CMyString::operator=(const Exercise_1::CMyStr
 // Destructor
 Exercise_1::CMyString::~CMyString()
 {
-	if(m_szData != nullptr){
+	if(m_szData != nullptr)
+	{
 		delete[] m_szData;
 	}
 }
