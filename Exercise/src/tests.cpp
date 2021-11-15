@@ -65,7 +65,7 @@ TEST_F(CMyStringFixture, AdditionOperatorTest)
 TEST_F(CMyStringFixture, InsertionTest)
 {
 	size_t nNewSize = myString.size() + secondString.size() - 1;
-	myString.Insert(secondString.data(), 3);
+	myString.Insert(secondString, 3);
 
 	ASSERT_EQ(nNewSize, myString.size());
 
@@ -82,19 +82,12 @@ TEST_F(CMyStringFixture, InsertionTest)
 
 TEST_F(CMyStringFixture, BeginInsertionTest)
 {
-	size_t nNewSize = myString.size() + secondString.size() - 1;
-	myString.Insert(secondString.data(), 0);
+	Exercise_1::CMyString copyString = secondString + myString;
+	myString.Insert(secondString, 0);
 
-	ASSERT_EQ(nNewSize, myString.size());
+	ASSERT_EQ(copyString.size(), myString.size());
 
-	char *szRightInserted = new char[nNewSize];
-	szRightInserted[0] = '\0';
-	std::strcat(szRightInserted, secondString.data());
-	std::strcat(szRightInserted, szTestData);
-
-	ASSERT_STREQ(myString.data(), szRightInserted);
-
-	delete[] szRightInserted;
+	ASSERT_STREQ(myString.data(), copyString.data());
 }
 
 TEST_F(CMyStringFixture, EndInsertionTest)
@@ -102,35 +95,18 @@ TEST_F(CMyStringFixture, EndInsertionTest)
 	// Testing this with append function because it's already tested
 	Exercise_1::CMyString copyString = myString + secondString;
 	
-	myString.Insert(secondString.data(), myString.size() - 1);
+	myString.Insert(secondString, myString.size() - 1);
 
 	ASSERT_EQ(copyString.size(), myString.size());
 
 	ASSERT_STREQ(myString.data(), copyString.data());
 }
 
-
-TEST_F(CMyStringFixture, MultipleInsertionTest)
+TEST_F(CMyStringFixture, PartialInsertionTest)
 {
-	for(size_t nTimesToInsert = 0; nTimesToInsert <= 5; nTimesToInsert++)
-	{
-		size_t nNewSize = myString.size() + (secondString.size() - 1) * nTimesToInsert;
-		Exercise_1::CMyString newString = myString;
-		newString.Insert(secondString.data(), 3, nTimesToInsert);
+	Exercise_1::CMyString str = myString;
+	str.Insert(secondString, 2, 4);
 
-		ASSERT_EQ(nNewSize, newString.size());
-
-		char *szRightInserted = new char[nNewSize];
-		std::strncpy(szRightInserted, szTestData, 3);
-		szRightInserted[3] = '\0';
-		for(size_t nCount = 0; nCount < nTimesToInsert; nCount++)
-		{
-			std::strcat(szRightInserted, secondString.data());
-		}
-		std::strcat(szRightInserted, szTestData + 3);
-
-		ASSERT_STREQ(newString.data(), szRightInserted);
-
-		delete[] szRightInserted;
-	}
+	ASSERT_EQ(str.size(), myString.size() + 4);
 }
+

@@ -18,12 +18,17 @@ char* Exercise_1::CMyString::TryToAllocate(const size_t nLength) noexcept {
 }
 
 std::size_t Exercise_1::CMyString::GetStringLength(const char *cszStringToCount) noexcept {
+	if(cszStringToCount == nullptr)
+	{
+		return 0;
+	}
+
 	std::size_t nStringLength = 0;
-	char cCurrentChar = cszStringToCount[0];
-	while(cCurrentChar != '\0')
+	char chCurrentChar = cszStringToCount[0];
+	while(chCurrentChar != '\0')
 	{
 		++nStringLength;
-		cCurrentChar = cszStringToCount[nStringLength];
+		chCurrentChar = cszStringToCount[nStringLength];
 	}
 	// Adding 1 because string is zero terminated
 	return nStringLength + 1;
@@ -31,37 +36,53 @@ std::size_t Exercise_1::CMyString::GetStringLength(const char *cszStringToCount)
 
 void Exercise_1::CMyString::CopyString(const char *cszStringToCopy)
 {
+	if(cszStringToCopy == nullptr)
+	{
+		return;
+	}
+
 	std::size_t nIndex = 0;
-	for(; cszStringToCopy[nIndex] != '\0'; nIndex++)
+	while(cszStringToCopy[nIndex] != '\0')
 	{
 		m_szData[nIndex] = cszStringToCopy[nIndex];
+		++nIndex;
 	}
 	m_szData[nIndex] = '\0';
 }
 
 void Exercise_1::CMyString::AppendToString(const char *cszStringToAppend)
 {
+	if(cszStringToAppend == nullptr)
+	{
+		return;
+	}
+
 	size_t nTerminantIndex = GetStringLength(m_szData) - 1;
 	for(size_t nIndex = nTerminantIndex; true; nIndex++)
 	{
-		const char ccCharToAppend = cszStringToAppend[nIndex - nTerminantIndex];
-		m_szData[nIndex] = ccCharToAppend;
-		if(ccCharToAppend == '\0')
+		const char cchCharToAppend = cszStringToAppend[nIndex - nTerminantIndex];
+		m_szData[nIndex] = cchCharToAppend;
+		if(cchCharToAppend == '\0')
 		{
 			break;
 		}
 	}
 }
 
-void Exercise_1::CMyString::Insert(const char* cszStringToInsert, size_t nStartPosition, size_t nTimesToInsert)
+void Exercise_1::CMyString::Insert(const char* cszStringToInsert, const size_t nStartPosition, const size_t nCountOfCharsToInsert)
 {
 	const size_t nLengthOfInserted = GetStringLength(cszStringToInsert);
 	if(nStartPosition > size() || nLengthOfInserted == 0)
 	{
-		return; // Or it is better to throw? //TODO clarify which variant is better
+		printf("Tried to reach wrong position!\n");
+		return;
+	}
+	if(nLengthOfInserted < nCountOfCharsToInsert)
+	{
+		printf("Tried to copy more characters than present\n");
 	}
 
-	const size_t nNewSize = size() + (nLengthOfInserted - 1) * nTimesToInsert; // Subtracting 1, because we need only one '\0'
+	const size_t nNewSize = size() + nCountOfCharsToInsert;
 	char *szNewString = new char[nNewSize]; 
 
 	size_t nCurrentPosition = 0;
@@ -71,14 +92,9 @@ void Exercise_1::CMyString::Insert(const char* cszStringToInsert, size_t nStartP
 		szNewString[nCurrentPosition] = m_szData[nCurrentPosition];
 	}
 	// Beggining multiple insertion of given strings 
-	size_t nEndPosition = nStartPosition; // Excluding '\0' part
-	for(size_t nCountOfInsertions = 0; nCountOfInsertions < nTimesToInsert; nCountOfInsertions++)
-	{
-		nEndPosition += nLengthOfInserted - 1;
-		for(; nCurrentPosition < nEndPosition; nCurrentPosition++)
-		{
-			szNewString[nCurrentPosition] = cszStringToInsert[nLengthOfInserted - 1 - (nEndPosition - nCurrentPosition)];
-		}
+	size_t nEndPosition = nStartPosition + nCountOfCharsToInsert;
+	for(; nCurrentPosition < nEndPosition; nCurrentPosition++){
+		szNewString[nCurrentPosition] = cszStringToInsert[nCurrentPosition - nStartPosition];
 	}
 	// Appending last part
 	for(; nCurrentPosition < nNewSize; nCurrentPosition++)
@@ -93,6 +109,12 @@ void Exercise_1::CMyString::Insert(const char* cszStringToInsert, size_t nStartP
 
 void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, const std::size_t& nStringLength)
 {
+	if(cszStringToCopy == nullptr)
+	{
+		printf("Passed nullptr");
+		return;
+	}
+	
 	bool bShouldCleanup = m_szData != nullptr && m_nSize != nStringLength;
 	// Cleaning data we used before
 	if(bShouldCleanup)
@@ -112,7 +134,7 @@ void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, con
 Exercise_1::CMyString::CMyString(const char* cszCharsSequence) 
 {
 	m_nSize = GetStringLength(cszCharsSequence);
-	m_szData = new char[m_nSize];
+	m_szData = TryToAllocate(m_nSize);
 
 	CopyString(cszCharsSequence);
 }
@@ -144,7 +166,7 @@ Exercise_1::CMyString::~CMyString()
 
 Exercise_1::CMyString& Exercise_1::CMyString::operator=(const char* cpszCharsSequence)
 {
-	std::size_t nNewSize = GetStringLength(cpszCharsSequence);
+	size_t nNewSize = GetStringLength(cpszCharsSequence);
 	ReinitializeAndCopy(cpszCharsSequence, nNewSize);
 	return *this;
 }
