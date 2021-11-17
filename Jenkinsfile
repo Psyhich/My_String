@@ -8,7 +8,7 @@ pipeline {
 		}
 		stage("Check code") {
 			steps {
-				step([$class: 'MasterCoverageAction', scmVars: [GIT_URL: https://github.com/Psyhich/My_String]])
+				step([$class: 'MasterCoverageAction', scmVars: [GIT_URL: env.GIT_URL]])
 			}
 		}
 		
