@@ -56,6 +56,9 @@ void Exercise_1::CMyString::AppendToString(const char *cszStringToAppend)
 	{
 		return;
 	}
+	
+	ReinitializeAndCopy(m_szData, size() + GetStringLength(cszStringToAppend) - 1);
+	
 
 	size_t nTerminantIndex = GetStringLength(m_szData) - 1;
 	for(size_t nIndex = nTerminantIndex; true; nIndex++)
@@ -116,19 +119,24 @@ void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, con
 	}
 	
 	bool bShouldCleanup = m_szData != nullptr && m_nSize != nStringLength;
-	// Cleaning data we used before
-	if(bShouldCleanup)
-	{
-		delete[] m_szData;
-	}
 	// Doing check if we need to reinitialize the char array
+	char *szOldString = m_szData;
+	m_szData = nullptr;
 	if(m_szData == nullptr || bShouldCleanup)
 	{
 		m_nSize = nStringLength;
 		m_szData = TryToAllocate(m_nSize);
+	} else 
+	{
+		m_szData = szOldString;
+	}
+	CopyString(cszStringToCopy);
+	//
+	// Cleaning data we used before
+	if(bShouldCleanup){
+		delete[] szOldString;
 	}
 	
-	CopyString(cszStringToCopy);
 }
 
 Exercise_1::CMyString::CMyString(const char* cszCharsSequence) 
@@ -172,11 +180,7 @@ Exercise_1::CMyString& Exercise_1::CMyString::operator=(const char* cpszCharsSeq
 }
 Exercise_1::CMyString Exercise_1::CMyString::operator+(const CMyString& cStringToAdd) const
 {
-	CMyString newString;
-	newString.m_nSize = size() + cStringToAdd.size() - 1; // Removing 1 because string can contain only 1 terminator('\0')
-	newString.m_szData = new char[newString.size()];
-	// Copying both parts of string
-	newString.CopyString(data());
+	CMyString newString = this->data();
 	newString.AppendToString(cStringToAdd.data());
 
 	return newString;
