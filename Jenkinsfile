@@ -8,10 +8,7 @@ pipeline {
 		}
 		stage("Check code") {
 			steps {
-				def scannerHome = tool 'SonarScanner';
-				withSonarQubeEnv() {
-						sh "${scannerHome}/bin/sonar-scanner"
-				}
+				step([$class: 'MasterCoverageAction', scmVars: [GIT_URL: env.GIT_URL]])
 			}
 		}
 		
@@ -34,6 +31,10 @@ pipeline {
 			steps {
 				dir("Exercise/build") {
 					sh 'make main'
+				}
+				script {
+					currentBuild.result = 'SUCCESS'
+					step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', scmVars: [GIT_URL: env.GIT_URL]])
 				}
 			}
 		}
