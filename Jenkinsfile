@@ -34,7 +34,6 @@ pipeline {
 				}
 				script {
 					currentBuild.result = 'SUCCESS'
-					step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', scmVars: [GIT_URL: https://github.com/Psyhich/My_String]])
 				}
 			}
 		}
