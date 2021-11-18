@@ -37,7 +37,7 @@ pipeline {
 					sh 'make main'
 				}
 				dir('Exercise/build/cobertura_reports/'){
-					mv ../test_coverage.xml ./
+					sh 'mv ../test_coverage.xml ./'
 				}
 				publishCoverage adapters: [cobertura(path: 'Exercise/build/cobertura_reports/', thresholds: [[failUnhealthy: true, thresholdTarget: 'Aggregated Report', unhealthyThreshold: 80.0, unstableThreshold: 80.0]])], sourceFileResolver: sourceFiles('NEVER_STORE')
 				script {
