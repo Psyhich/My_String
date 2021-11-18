@@ -6,11 +6,6 @@ pipeline {
 				checkout scm
 			}
 		}
-		stage("Check code") {
-			steps {
-				step([$class: 'MasterCoverageAction', scmVars: [GIT_URL: env.GIT_URL]])
-			}
-		}
 		
 		stage("Build") {
 			steps {
@@ -34,7 +29,6 @@ pipeline {
 				}
 				script {
 					currentBuild.result = 'SUCCESS'
-					step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', scmVars: [GIT_URL: env.GIT_URL]])
 				}
 			}
 		}

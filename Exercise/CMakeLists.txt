@@ -82,7 +82,7 @@ target_link_libraries( tests
 )
 if(CMAKE_COMPILER_IS_GNUCXX)
 	include(CodeCoverage)
-	SETUP_TARGET_FOR_COVERAGE(tests_coverage tests test_coverage)
+	SETUP_TARGET_FOR_COVERAGE_COBERTURA(tests_coverage tests test_coverage)
 endif()
 
 
@@ -92,6 +92,9 @@ gtest_discover_tests(tests)
 
 # Automaticaly running all tests on build
 add_custom_command(TARGET main
-                   POST_BUILD
-                   COMMAND ctest -C $<CONFIGURATION> --output-on-failure)
+					POST_BUILD
+					COMMAND ctest -C $<CONFIGURATION> 
+						--output-on-failure
+						)
+
 
