@@ -47,7 +47,7 @@ pipeline {
 					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
 				step([$class: 'MasterCoverageAction'])
-				step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', skipPublishingChecks: true, scmVars: [GIT_URL: env.GIT_URL]])
+				step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', skipPublishingChecks: true, scmVars: [GIT_URL: 'https://github.com/Psyhich/My_String']])
 			}
 		}
 	}
