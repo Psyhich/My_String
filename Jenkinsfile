@@ -36,7 +36,7 @@ pipeline {
 			steps {
 				dir("Exercise/build") {
 					sh 'make main'
-					publishCoverage adapters: [cobertura(path: 'test_coverage.xml', thresholds: [[failUnhealthy: true, thresholdTarget: 'Aggregated Report', unhealthyThreshold: 80.0, unstableThreshold: 80.0]])], sourceFileResolver: sourceFiles('NEVER_STORE')
+					publishCoverage adapters: [cobertura(path: 'Exercise/build/test_coverage.xml', thresholds: [[failUnhealthy: true, thresholdTarget: 'Aggregated Report', unhealthyThreshold: 80.0, unstableThreshold: 80.0]])], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
 				script {
 					currentBuild.result = 'SUCCESS'
