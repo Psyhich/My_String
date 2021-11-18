@@ -50,7 +50,7 @@ pipeline {
 					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
 				step([$class: 'MasterCoverageAction'])
-				step([$class: 'CompareCoverageAction'])
+				step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', skipPublishingChecks: true])
 			}
 		}
 	}
