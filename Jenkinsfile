@@ -1,5 +1,8 @@
 pipeline {
 	agent any
+	environment{
+		GIT_URL = 'https://github.com/Psyhich/My_String'
+	}
 	stages {
 		stage('SCM') {
 			steps { 
@@ -42,9 +45,6 @@ pipeline {
 			}
 		}
 		stage("Publish to GitHub") {
-			environment{
-				GIT_URL = 'https://github.com/Psyhich/My_String'
-			}
 			steps{
 				dir("Exercise/build"){
 					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
