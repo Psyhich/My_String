@@ -35,11 +35,19 @@ pipeline {
 			steps {
 				dir("Exercise/build") {
 					sh 'make main'
-					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
 				script {
 					currentBuild.result = 'SUCCESS'
 				}
+			}
+		}
+		stage("Publish to GitHub") {
+			steps{
+				dir("Exercise/build"){
+					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
+				}
+				step([$class: 'MasterCoverageAction'])
+				step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', scmVars: [GIT_URL: env.GIT_URL]])
 			}
 		}
 	}
