@@ -39,7 +39,7 @@ pipeline {
 				dir('Exercise/build/cobertura_reports/'){
 					sh 'mv ../test_coverage.xml ./'
 				}
-				publishCoverage adapters: [cobertura(path: 'Exercise/build/cobertura_reports/')], sourceFileResolver: sourceFiles('NEVER_STORE')
+				publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				script {
 					currentBuild.result = 'SUCCESS'
 				}
