@@ -26,7 +26,6 @@ pipeline {
 			steps{
 				dir("Exercise/build") {
 					sh 'make tests_coverage'
-					sh 'cat test_coverage.xml'
 					cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'test_coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
 				}
 			}
@@ -36,8 +35,11 @@ pipeline {
 			steps {
 				dir("Exercise/build") {
 					sh 'make main'
-					publishCoverage adapters: [cobertura(path: 'Exercise/build/test_coverage.xml', thresholds: [[failUnhealthy: true, thresholdTarget: 'Aggregated Report', unhealthyThreshold: 80.0, unstableThreshold: 80.0]])], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
+				dir('Exercise/build/cobertura_reports/'){
+					mv ../test_coverage.xml ./
+				}
+				publishCoverage adapters: [cobertura(path: 'Exercise/build/cobertura_reports/', thresholds: [[failUnhealthy: true, thresholdTarget: 'Aggregated Report', unhealthyThreshold: 80.0, unstableThreshold: 80.0]])], sourceFileResolver: sourceFiles('NEVER_STORE')
 				script {
 					currentBuild.result = 'SUCCESS'
 				}
