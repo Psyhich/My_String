@@ -49,8 +49,8 @@ pipeline {
 				dir("Exercise/build"){
 					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
-				step([$class: 'MasterCoverageAction'])
-				step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', skipPublishingChecks: true])
+				step([$class: 'MasterCoverageAction', scmVars: [GIT_URL: env.GIT_URL]])
+				step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', skipPublishingChecks: true, , scmVars: [GIT_URL: env.GIT_URL]])
 			}
 		}
 	}
