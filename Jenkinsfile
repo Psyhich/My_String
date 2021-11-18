@@ -35,11 +35,8 @@ pipeline {
 			steps {
 				dir("Exercise/build") {
 					sh 'make main'
+					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
-				dir('Exercise/build/cobertura_reports/'){
-					sh 'mv ../test_coverage.xml ./'
-				}
-				publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				script {
 					currentBuild.result = 'SUCCESS'
 				}
