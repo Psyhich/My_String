@@ -10,7 +10,7 @@ pipeline {
 		stage("Build") {
 			steps {
 				dir("Exercise/build") {
-					sh 'cmake ../'
+					sh 'cmake ../ -DCMAKE_BUILD_TYPE=Debug'
 					sh 'make tests'
 				}
 			}
