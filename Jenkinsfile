@@ -42,11 +42,15 @@ pipeline {
 			}
 		}
 		stage("Publish to GitHub") {
+			environment{
+				GIT_URL = 'https://github.com/Psyhich/My_String'
+			}
 			steps{
 				dir("Exercise/build"){
 					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
-				step([$class: 'MasterCoverageAction'])
+				step([$class: 'MasterCoverageAction', skipPublishingChecks: true])
+				step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', skipPublishingChecks: true, scmVars: [GIT_URL: env.GIT_URL]])
 			}
 		}
 	}
