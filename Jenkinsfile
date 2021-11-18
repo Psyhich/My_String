@@ -22,6 +22,15 @@ pipeline {
 				}
 			}
 		}
+		stage("Check coverage"){
+			steps{
+				dir("Exercise/build") {
+					sh 'make tests_coverage'
+					publishCoverage adapters: [cobertura('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
+				}
+			}
+
+		}
 		stage("Build main"){
 			steps {
 				dir("Exercise/build") {
