@@ -29,7 +29,8 @@ pipeline {
 			steps{
 				dir("Exercise/build") {
 					sh 'make tests_coverage'
-					cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'test_coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+					sh 'mv test_coverage.xml cobertura.xml'
+					cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'cobertura.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
 				}
 			}
 
@@ -47,7 +48,7 @@ pipeline {
 		stage("Publish to GitHub") {
 			steps{
 				dir("Exercise/build"){
-					publishCoverage adapters: [coberturaAdapter('test_coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
+					publishCoverage adapters: [coberturaAdapter('cobertura.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
 				}
 				step([$class: 'MasterCoverageAction', scmVars: [GIT_URL: env.GIT_URL]])
 				step([$class: 'CompareCoverageAction', publishResultAs: 'statusCheck', skipPublishingChecks: true, , scmVars: [GIT_URL: env.GIT_URL]])
