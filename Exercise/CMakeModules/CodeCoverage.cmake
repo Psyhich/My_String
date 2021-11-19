@@ -16,6 +16,14 @@ IF(NOT CMAKE_COMPILER_IS_GNUCXX)
 	ENDIF()
 ENDIF() # NOT CMAKE_COMPILER_IS_GNUCXX
 
+IF(NOT PYTHON_EXECUTABLE)
+	MESSAGE(FATAL_ERROR "Python not found! Aborting...")
+ENDIF() # NOT PYTHON_EXECUTABLE
+
+IF(NOT GCOVR_PATH)
+	MESSAGE(FATAL_ERROR "gcovr not found! Aborting...")
+ENDIF() # NOT GCOVR_PATH
+
 SET(CMAKE_CXX_FLAGS_COVERAGE
     "-g -O0 --coverage -fprofile-arcs -ftest-coverage"
     CACHE STRING "Flags used by the C++ compiler during coverage builds."
@@ -48,22 +56,12 @@ ENDIF() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 # Optional fourth parameter is passed as arguments to _testrunner
 #   Pass them in list form, e.g.: "-j;2" for -j 2
 FUNCTION(SETUP_TARGET_FOR_COVERAGE_COBERTURA _targetname _testrunner _outputname _excludes)
-
-	IF(NOT PYTHON_EXECUTABLE)
-		MESSAGE(FATAL_ERROR "Python not found! Aborting...")
-	ENDIF() # NOT PYTHON_EXECUTABLE
-
-	IF(NOT GCOVR_PATH)
-		MESSAGE(FATAL_ERROR "gcovr not found! Aborting...")
-	ENDIF() # NOT GCOVR_PATH
-
 	ADD_CUSTOM_TARGET(${_targetname}
-
 		# Run tests
-		${_testrunner} ${ARGV3}
+		${_testrunner}
 
 		# Running gcovr
-		COMMAND ${GCOVR_PATH} -r ${CMAKE_SOURCE_DIR} -x ${_outputname}.xml -e ${_excludes}
+		COMMAND ${GCOVR_PATH} -r ${CMAKE_SOURCE_DIR} -e "${_excludes}" -x ${_outputname}.xml
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 		COMMENT "Running gcovr to produce Cobertura code coverage report."
 	)

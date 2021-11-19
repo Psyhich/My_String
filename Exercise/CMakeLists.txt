@@ -82,7 +82,8 @@ target_link_libraries( tests
 )
 if(CMAKE_COMPILER_IS_GNUCXX)
 	include(CodeCoverage)
-	SETUP_TARGET_FOR_COVERAGE_COBERTURA(tests_coverage tests cobertura ${TESTS})
+	# Currenty I cannot make parameters more universal, so I have to use python regexp
+	SETUP_TARGET_FOR_COVERAGE_COBERTURA(tests_coverage tests cobertura "\".*/(tests.cpp|main.cpp)\"")
 endif()
 
 
