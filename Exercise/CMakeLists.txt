@@ -82,7 +82,7 @@ target_link_libraries( tests
 )
 if(CMAKE_COMPILER_IS_GNUCXX)
 	include(CodeCoverage)
-	SETUP_TARGET_FOR_COVERAGE_COBERTURA(tests_coverage tests test_coverage)
+	SETUP_TARGET_FOR_COVERAGE_COBERTURA(tests_coverage tests cobertura ${TESTS})
 endif()
 
 
