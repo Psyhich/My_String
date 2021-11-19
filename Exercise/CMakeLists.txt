@@ -87,7 +87,7 @@ endif()
 
 
 include(GoogleTest)
-include(Dart)
+#include(Dart)
 gtest_discover_tests(tests)
 
 # Automaticaly running all tests on build
