@@ -105,8 +105,100 @@ TEST_F(CMyStringFixture, EndInsertionTest)
 TEST_F(CMyStringFixture, PartialInsertionTest)
 {
 	Exercise_1::CMyString str = myString;
-	str.Insert(secondString, 2, 4);
+	constexpr const int ciInsertIndex = 2;
+	str.Insert(secondString, ciInsertIndex, 4);
 
 	ASSERT_EQ(str.size(), myString.size() + 4);
+
+	char *szRightInserted = new char[str.size()]; // We can use size here because we checked it
+	std::strncpy(szRightInserted, szTestData, ciInsertIndex);
+	szRightInserted[ciInsertIndex] = '\0';
+	std::strncat(szRightInserted, secondString.data(), 4);
+	std::strcat(szRightInserted, szTestData + ciInsertIndex);
+
+	ASSERT_STREQ(str.data(), szRightInserted);
+
+	delete[] szRightInserted;
+
 }
 
+TEST(CMyStringTest, EqualityTest)
+{
+	Exercise_1::CMyString str1 = "Hello world";
+	Exercise_1::CMyString str2 = "Hello world";
+	
+	ASSERT_EQ(str1 == str2, true);
+
+	str2 = str2 + "Hi";
+
+	ASSERT_EQ(str1 == str2, false);
+
+	Exercise_1::CMyString nullPtrString = nullptr;
+	ASSERT_EQ(nullPtrString == str1, false);
+	ASSERT_EQ(nullPtrString == nullPtrString, true);
+
+	str1 = "Same other1";
+	ASSERT_EQ(str1 == str2, false);
+	
+}
+
+TEST(CMyStringFailTests, NullptrConstructor)
+{
+	Exercise_1::CMyString nullptrStr{nullptr};
+
+	ASSERT_EQ(nullptrStr.size(), 0);
+	ASSERT_EQ(nullptrStr.data(), nullptr);
+}
+
+TEST(CMyStringFailTests, NullptrAssignOperator)
+{
+	Exercise_1::CMyString nullptrStr = nullptr;
+
+	ASSERT_EQ(nullptrStr.size(), 0);
+	ASSERT_EQ(nullptrStr.data(), nullptr);
+}
+
+TEST(CMyStringFailTests, NullptrAppends)
+{
+	Exercise_1::CMyString basicString{"Hello"};
+	Exercise_1::CMyString safeCopy{"Hello"};
+	Exercise_1::CMyString nullptrStr = nullptr;
+
+	basicString = basicString + nullptrStr;
+
+	ASSERT_EQ(basicString.size(), safeCopy.size());
+	ASSERT_STREQ(basicString.data(), safeCopy.data());
+
+	basicString = nullptr;
+
+	basicString = basicString + nullptrStr;
+	ASSERT_EQ(basicString.size(), 0);
+	ASSERT_EQ(basicString.data(), nullptr);
+}
+
+TEST(CMyStringFailTests, NullptrInsert)
+{
+	Exercise_1::CMyString basicString{"Hello world"};
+	Exercise_1::CMyString stringCopy{basicString};
+	const size_t nSizeBefore = basicString.size();
+	basicString.Insert(nullptr, 1);
+
+	ASSERT_EQ(basicString.size(), nSizeBefore);
+	ASSERT_STREQ(basicString.data(), stringCopy.data());
+}
+
+TEST(CMyStringFailTests, WrongInsertionTest)
+{
+	Exercise_1::CMyString basicString{"Hello world"};
+	Exercise_1::CMyString stringCopy{basicString};
+	const size_t nSizeBefore = basicString.size();
+	basicString.Insert("Some string", 100);
+
+	ASSERT_EQ(basicString.size(), nSizeBefore);
+	ASSERT_STREQ(basicString.data(), stringCopy.data());
+
+	basicString.Insert("Some other string", 1, 100);
+
+	ASSERT_EQ(basicString.size(), nSizeBefore);
+	ASSERT_STREQ(basicString.data(), stringCopy.data());
+}

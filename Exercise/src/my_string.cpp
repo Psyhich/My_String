@@ -5,6 +5,10 @@
 #include "my_string.h"
 
 char* Exercise_1::CMyString::TryToAllocate(const size_t nLength) noexcept {
+	if(nLength == 0)
+	{
+		return nullptr;
+	}
 	char *pcAllocated;
 	try
 	{
@@ -83,6 +87,7 @@ void Exercise_1::CMyString::Insert(const char* cszStringToInsert, const size_t n
 	if(nLengthOfInserted < nCountOfCharsToInsert)
 	{
 		printf("Tried to copy more characters than present\n");
+		return;
 	}
 
 	const size_t nNewSize = size() + nCountOfCharsToInsert;
@@ -114,7 +119,11 @@ void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, con
 {
 	if(cszStringToCopy == nullptr)
 	{
-		printf("Passed nullptr");
+		m_nSize = 0;
+		if(m_szData != nullptr){
+			delete[] m_szData;
+			m_szData = nullptr;
+		}
 		return;
 	}
 	
