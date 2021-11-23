@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-namespace Exercise_1 
+namespace MyStructs 
 {
 	/*
 	* STL like class for storing and using zero terminated string
@@ -62,7 +62,7 @@ namespace Exercise_1
 		void CopyString(const char *cszStringToCopy);
 		void AppendToString(const char *cszStringToAppend);
 		void ReinitializeAndCopy(const char* cpszStringToCopy, const size_t& nStringLength);
-		static char* TryToAllocate(const size_t nLength) noexcept;
+		void TryToAllocate(const size_t nLength) noexcept;
 	private:
 		size_t m_nSize{0};
 		char *m_szData{nullptr};

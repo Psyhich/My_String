@@ -9,8 +9,8 @@
 class CMyStringFixture : public ::testing::Test
 {
 protected:
-	Exercise_1::CMyString myString;
-	Exercise_1::CMyString secondString;
+	MyStructs::CMyString myString;
+	MyStructs::CMyString secondString;
 
 	const size_t nTestDataLength{TEST_DATA_LENGTH};
 	const char szTestData[TEST_DATA_LENGTH]{"Some test string"};
@@ -21,8 +21,8 @@ protected:
 public:
 	void SetUp() override
 	{
-		myString = Exercise_1::CMyString(szTestData);
-		secondString = Exercise_1::CMyString(szSecondTestString);
+		myString = MyStructs::CMyString(szTestData);
+		secondString = MyStructs::CMyString(szSecondTestString);
 	}
 };
 
@@ -39,22 +39,22 @@ TEST_F(CMyStringFixture, DataCorrectnesTest)
 
 TEST_F(CMyStringFixture, DataCopyTest)
 {
-	Exercise_1::CMyString copiedString{myString};
+	MyStructs::CMyString copiedString{myString};
 	ASSERT_EQ(myString.size(), copiedString.size());
 	ASSERT_STREQ(myString.data(), copiedString.data());
 
-	Exercise_1::CMyString operatorCopiedString = myString;
+	MyStructs::CMyString operatorCopiedString = myString;
 	ASSERT_EQ(myString.size(), operatorCopiedString.size());
 	ASSERT_STREQ(myString.data(), operatorCopiedString.data());
 
-	Exercise_1::CMyString operatorCopiedChars = szTestData;
+	MyStructs::CMyString operatorCopiedChars = szTestData;
 	ASSERT_EQ(myString.size(), operatorCopiedChars.size());
 	ASSERT_STREQ(myString.data(), operatorCopiedChars.data());
 }
 
 TEST_F(CMyStringFixture, AdditionOperatorTest)
 {
-	Exercise_1::CMyString concatenatedString = myString + secondString; 
+	MyStructs::CMyString concatenatedString = myString + secondString; 
 	ASSERT_EQ(concatenatedString.size(), myString.size() + secondString.size() - 1);
 
 	char* pszConcatenatedChars = new char[nTestDataLength + nSecondStringLength - 1];
@@ -86,7 +86,7 @@ TEST_F(CMyStringFixture, InsertionTest)
 
 TEST_F(CMyStringFixture, BeginInsertionTest)
 {
-	Exercise_1::CMyString copyString = secondString + myString;
+	MyStructs::CMyString copyString = secondString + myString;
 	myString.Insert(secondString, 0);
 
 	ASSERT_EQ(copyString.size(), myString.size());
@@ -97,7 +97,7 @@ TEST_F(CMyStringFixture, BeginInsertionTest)
 TEST_F(CMyStringFixture, EndInsertionTest)
 {
 	// Testing this with append function because it's already tested
-	Exercise_1::CMyString copyString = myString + secondString;
+	MyStructs::CMyString copyString = myString + secondString;
 	
 	myString.Insert(secondString, myString.size() - 1);
 
@@ -108,7 +108,7 @@ TEST_F(CMyStringFixture, EndInsertionTest)
 
 TEST_F(CMyStringFixture, PartialInsertionTest)
 {
-	Exercise_1::CMyString str = myString;
+	MyStructs::CMyString str = myString;
 	constexpr const int ciInsertIndex = 2;
 	str.Insert(secondString, ciInsertIndex, 4);
 
@@ -128,8 +128,8 @@ TEST_F(CMyStringFixture, PartialInsertionTest)
 
 TEST(CMyStringTest, EqualityTest)
 {
-	Exercise_1::CMyString str1 = "Hello world";
-	Exercise_1::CMyString str2 = "Hello world";
+	MyStructs::CMyString str1 = "Hello world";
+	MyStructs::CMyString str2 = "Hello world";
 	
 	ASSERT_EQ(str1 == str2, true);
 
@@ -140,7 +140,7 @@ TEST(CMyStringTest, EqualityTest)
 
 	ASSERT_EQ(str1 == str2, false);
 
-	Exercise_1::CMyString nullPtrString = nullptr;
+	MyStructs::CMyString nullPtrString = nullptr;
 	ASSERT_EQ(nullPtrString == str1, false);
 	ASSERT_EQ(nullPtrString == nullPtrString, true);
 
@@ -151,10 +151,21 @@ TEST(CMyStringTest, EqualityTest)
 TEST(CMyStringTest, DeletionTest)
 {
 	const char* cszDeletedString = "He world";
-	Exercise_1::CMyString strToDeleteFrom{"Hello, world"};
+	MyStructs::CMyString strToDeleteFrom{"Hello, world"};
 	strToDeleteFrom.Delete(2, 4);
 
 	ASSERT_STREQ(strToDeleteFrom.data(), cszDeletedString);
+}
+
+TEST(CMyStringTest, SubstringTest)
+{
+	const char* cszBaseString = "Hello world";
+	const char* cszSubstring = "llo wor";
+
+	MyStructs::CMyString myString{cszBaseString};
+	MyStructs::CMyString substring = myString.Substring(2, 7);
+
+	ASSERT_STREQ(substring.data(), cszSubstring);
 }
 
 // ------------------------
@@ -163,7 +174,7 @@ TEST(CMyStringTest, DeletionTest)
 
 TEST(CMyStringFailTests, NullptrConstructor)
 {
-	Exercise_1::CMyString nullptrStr{nullptr};
+	MyStructs::CMyString nullptrStr{nullptr};
 
 	ASSERT_EQ(nullptrStr.size(), 0);
 	ASSERT_EQ(nullptrStr.data(), nullptr);
@@ -171,7 +182,7 @@ TEST(CMyStringFailTests, NullptrConstructor)
 
 TEST(CMyStringFailTests, NullptrAssignOperator)
 {
-	Exercise_1::CMyString nullptrStr = nullptr;
+	MyStructs::CMyString nullptrStr = nullptr;
 
 	ASSERT_EQ(nullptrStr.size(), 0);
 	ASSERT_EQ(nullptrStr.data(), nullptr);
@@ -179,9 +190,9 @@ TEST(CMyStringFailTests, NullptrAssignOperator)
 
 TEST(CMyStringFailTests, NullptrAppends)
 {
-	Exercise_1::CMyString basicString{"Hello"};
-	Exercise_1::CMyString safeCopy{"Hello"};
-	Exercise_1::CMyString nullptrStr = nullptr;
+	MyStructs::CMyString basicString{"Hello"};
+	MyStructs::CMyString safeCopy{"Hello"};
+	MyStructs::CMyString nullptrStr = nullptr;
 
 	basicString = basicString + nullptrStr;
 
@@ -197,8 +208,8 @@ TEST(CMyStringFailTests, NullptrAppends)
 
 TEST(CMyStringFailTests, NullptrInsert)
 {
-	Exercise_1::CMyString basicString{"Hello world"};
-	Exercise_1::CMyString stringCopy{basicString};
+	MyStructs::CMyString basicString{"Hello world"};
+	MyStructs::CMyString stringCopy{basicString};
 	const size_t nSizeBefore = basicString.size();
 	basicString.Insert(nullptr, 1);
 
@@ -208,8 +219,8 @@ TEST(CMyStringFailTests, NullptrInsert)
 
 TEST(CMyStringFailTests, WrongInsertionTest)
 {
-	Exercise_1::CMyString basicString{"Hello world"};
-	Exercise_1::CMyString stringCopy{basicString};
+	MyStructs::CMyString basicString{"Hello world"};
+	MyStructs::CMyString stringCopy{basicString};
 	const size_t nSizeBefore = basicString.size();
 	basicString.Insert("Some string", 100);
 
@@ -225,7 +236,7 @@ TEST(CMyStringFailTests, WrongInsertionTest)
 TEST(CMyStringFailTests, DeletionFailTest)
 {
 	const char* szStartingString = "Hello";
-	Exercise_1::CMyString startingString{szStartingString};
+	MyStructs::CMyString startingString{szStartingString};
 
 	startingString.Delete(10, 10);
 	ASSERT_STREQ(startingString.data(), szStartingString);
@@ -237,3 +248,27 @@ TEST(CMyStringFailTests, DeletionFailTest)
 	startingString.Delete(startingString.size() - 1, 1);
 	ASSERT_STREQ(startingString.data(), szStartingString);
 }
+
+TEST(CMyStringFailTests, SubstringFailTest)
+{
+	const char* cszBaseString = "Hello world";
+
+	MyStructs::CMyString myString{cszBaseString};
+
+	MyStructs::CMyString substring = myString.Substring(2, 0);
+	ASSERT_EQ(substring.size(), 0);
+	ASSERT_EQ(substring.data(), nullptr);
+
+	substring = myString.Substring(100, 0);
+	ASSERT_EQ(substring.size(), 0);
+	ASSERT_EQ(substring.data(), nullptr);
+
+	substring = myString.Substring(0, 100);
+	ASSERT_EQ(substring.size(), 0);
+	ASSERT_EQ(substring.data(), nullptr);
+
+	substring = myString.Substring(100, 100);
+	ASSERT_EQ(substring.size(), 0);
+	ASSERT_EQ(substring.data(), nullptr);
+}
+

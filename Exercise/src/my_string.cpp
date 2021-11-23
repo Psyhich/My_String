@@ -4,16 +4,23 @@
 
 #include "my_string.h"
 
-char* Exercise_1::CMyString::TryToAllocate(const size_t nLength) noexcept {
-	char *pcAllocated{nullptr};
-	if(nLength > 0)
+void MyStructs::CMyString::TryToAllocate(const size_t nLength) noexcept {
+	if(nLength == 0)
 	{
-		pcAllocated = new(std::nothrow) char[nLength];
+		m_szData = nullptr;
+	}else 
+	{
+		m_szData = new(std::nothrow) char[nLength];
 	}
-	return pcAllocated;
+	if(m_szData != nullptr)
+	{
+		m_nSize = nLength;
+	} else {
+		m_nSize = 0;
+	}
 }
 
-std::size_t Exercise_1::CMyString::GetStringLength(const char *cszStringToCount) noexcept {
+std::size_t MyStructs::CMyString::GetStringLength(const char *cszStringToCount) noexcept {
 	if(cszStringToCount == nullptr)
 	{
 		return 0;
@@ -30,7 +37,7 @@ std::size_t Exercise_1::CMyString::GetStringLength(const char *cszStringToCount)
 	return nStringLength + 1;
 }
 
-void Exercise_1::CMyString::CopyString(const char *cszStringToCopy)
+void MyStructs::CMyString::CopyString(const char *cszStringToCopy)
 {
 	if(cszStringToCopy == nullptr)
 	{
@@ -46,7 +53,7 @@ void Exercise_1::CMyString::CopyString(const char *cszStringToCopy)
 	m_szData[nIndex] = '\0';
 }
 
-void Exercise_1::CMyString::AppendToString(const char *cszStringToAppend)
+void MyStructs::CMyString::AppendToString(const char *cszStringToAppend)
 {
 	if(cszStringToAppend == nullptr)
 	{
@@ -68,7 +75,7 @@ void Exercise_1::CMyString::AppendToString(const char *cszStringToAppend)
 	}
 }
 
-void Exercise_1::CMyString::Insert(const char* cszStringToInsert, const size_t nStartPosition, const size_t nCountOfCharsToInsert)
+void MyStructs::CMyString::Insert(const char* cszStringToInsert, const size_t nStartPosition, const size_t nCountOfCharsToInsert)
 {
 	const size_t nLengthOfInserted = GetStringLength(cszStringToInsert);
 	if(nStartPosition > size() || nLengthOfInserted == 0)
@@ -107,7 +114,7 @@ void Exercise_1::CMyString::Insert(const char* cszStringToInsert, const size_t n
 	m_nSize = cnNewSize;
 }
 
-void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, const std::size_t& nStringLength)
+void MyStructs::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, const std::size_t& nStringLength)
 {
 	if(cszStringToCopy == nullptr)
 	{
@@ -125,12 +132,12 @@ void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, con
 	m_szData = nullptr;
 	if(m_szData == nullptr || bShouldCleanup)
 	{
-		m_nSize = nStringLength;
-		m_szData = TryToAllocate(m_nSize);
+		TryToAllocate(nStringLength);
 	} else 
 	{
 		m_szData = szOldString;
 	}
+
 	CopyString(cszStringToCopy);
 	//
 	// Cleaning data we used before
@@ -140,20 +147,19 @@ void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, con
 	
 }
 
-Exercise_1::CMyString::CMyString(const char* cszCharsSequence) 
+MyStructs::CMyString::CMyString(const char* cszCharsSequence) 
 {
-	m_nSize = GetStringLength(cszCharsSequence);
-	m_szData = TryToAllocate(m_nSize);
+	TryToAllocate(GetStringLength(cszCharsSequence));
 
 	CopyString(cszCharsSequence);
 }
 
-Exercise_1::CMyString::CMyString(const Exercise_1::CMyString& cStringToCopy)
+MyStructs::CMyString::CMyString(const MyStructs::CMyString& cStringToCopy)
 {
 	ReinitializeAndCopy(cStringToCopy.data(), cStringToCopy.size());
 }
 
-Exercise_1::CMyString& Exercise_1::CMyString::operator=(const Exercise_1::CMyString& cStringToCopy)
+MyStructs::CMyString& MyStructs::CMyString::operator=(const MyStructs::CMyString& cStringToCopy)
 {
 	if(&cStringToCopy == this) 
 	{
@@ -165,7 +171,7 @@ Exercise_1::CMyString& Exercise_1::CMyString::operator=(const Exercise_1::CMyStr
 }
 
 // Destructor
-Exercise_1::CMyString::~CMyString()
+MyStructs::CMyString::~CMyString()
 {
 	if(m_szData != nullptr)
 	{
@@ -173,7 +179,7 @@ Exercise_1::CMyString::~CMyString()
 	}
 }
 
-void Exercise_1::CMyString::Delete(size_t nPosition, size_t nCharactersCount) noexcept
+void MyStructs::CMyString::Delete(size_t nPosition, size_t nCharactersCount) noexcept
 {
 	if(nPosition >= m_nSize || nCharactersCount == 0 || 
 		m_nSize - nPosition < nCharactersCount)
@@ -189,8 +195,9 @@ void Exercise_1::CMyString::Delete(size_t nPosition, size_t nCharactersCount) no
 		m_nSize += 1;
 	}
 
-	char *szNewString = TryToAllocate(m_nSize);
-	if(szNewString == nullptr)
+	char *szOldString = m_szData; 
+	TryToAllocate(m_nSize);
+	if(m_szData == nullptr)
 	{
 		return;
 	}
@@ -208,32 +215,49 @@ void Exercise_1::CMyString::Delete(size_t nPosition, size_t nCharactersCount) no
 		}
 		
 		// Calculating index to delete
-		szNewString[nNewStringPosition] = m_szData[nOldStringPosition];
+		m_szData[nNewStringPosition] = szOldString[nOldStringPosition];
 		++nOldStringPosition;
 		++nNewStringPosition;
 	}
 
-	szNewString[m_nSize - 1] = '\0';
+	m_szData[m_nSize - 1] = '\0';
 
-	delete[] m_szData;
-	m_szData = szNewString;
+	delete[] szOldString;
+}
+
+MyStructs::CMyString MyStructs::CMyString::Substring(size_t nPosition, size_t nCharactersCount) const noexcept
+{
+	CMyString substring{nullptr}; 
+	if(nPosition >= m_nSize || nCharactersCount == 0 || 
+		m_nSize - nPosition < nCharactersCount)
+	{
+		return substring;
+	}
+	substring.TryToAllocate(nCharactersCount);
+	if(substring.m_szData == nullptr)
+	{
+		return substring;
+	}
+
+	const size_t cnEndPosition = nPosition + nCharactersCount;
+	for(size_t nCurrentIndex = nPosition; nCurrentIndex < cnEndPosition; nCurrentIndex++)
+	{
+		substring.m_szData[nCurrentIndex - nPosition] = m_szData[nCurrentIndex];
+	}
+
+	return substring;
+}
+/*
+size_t MyStructs::CMyString::Find(const char *szStringToFind) const noexcept
+{
 
 }
-/*Exercise_1::CMyString::CMyString Exercise_1::CMyString::Substring(size_t nPosition, size_t nCharactersCount) const noexcept
+size_t MyStructs::CMyString::Find(const CMyString &stringToFind) const noexcept
 {
 
 }
 
-size_t Exercise_1::CMyString::Find(const char *szStringToFind) const noexcept
-{
-
-}
-size_t Exercise_1::CMyString::Find(const CMyString &stringToFind) const noexcept
-{
-
-}
-
-Exercise_1::CMyString::CMyString Exercise_1::CMyString::Trim(size_t nPosition, size_t nCharactersCount) noexcept
+MyStructs::CMyString::CMyString MyStructs::CMyString::Trim(size_t nPosition, size_t nCharactersCount) noexcept
 {
 
 }
@@ -244,13 +268,13 @@ void ToLowerCase(size_t nStartPos, size_t nLasPos) noexcept;
 void ToLowerCase() noexcept;
 */
 
-Exercise_1::CMyString& Exercise_1::CMyString::operator=(const char* cpszCharsSequence)
+MyStructs::CMyString& MyStructs::CMyString::operator=(const char* cpszCharsSequence)
 {
 	size_t nNewSize = GetStringLength(cpszCharsSequence);
 	ReinitializeAndCopy(cpszCharsSequence, nNewSize);
 	return *this;
 }
-Exercise_1::CMyString Exercise_1::CMyString::operator+(const CMyString& cStringToAdd) const
+MyStructs::CMyString MyStructs::CMyString::operator+(const CMyString& cStringToAdd) const
 {
 	CMyString newString = this->data();
 	newString.AppendToString(cStringToAdd.data());
@@ -258,7 +282,7 @@ Exercise_1::CMyString Exercise_1::CMyString::operator+(const CMyString& cStringT
 	return newString;
 }
 // Checks if each character in strings are equal, also empty strings are equal
-bool Exercise_1::CMyString::operator==(const CMyString& cStringToCompare) const
+bool MyStructs::CMyString::operator==(const CMyString& cStringToCompare) const
 {
 	if(size() != cStringToCompare.size())
 	{
