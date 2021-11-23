@@ -5,18 +5,10 @@
 #include "my_string.h"
 
 char* Exercise_1::CMyString::TryToAllocate(const size_t nLength) noexcept {
-	if(nLength == 0)
+	char *pcAllocated{nullptr};
+	if(nLength > 0)
 	{
-		return nullptr;
-	}
-	char *pcAllocated;
-	try
-	{
-		pcAllocated = new char[nLength];
-	} catch(std::bad_alloc& err)
-	{
-		pcAllocated = nullptr;
-		printf("Failed to allocate character of length: %ld\n", nLength);
+		pcAllocated = new(std::nothrow) char[nLength];
 	}
 	return pcAllocated;
 }
@@ -61,13 +53,13 @@ void Exercise_1::CMyString::AppendToString(const char *cszStringToAppend)
 		return;
 	}
 	
-	ReinitializeAndCopy(m_szData, size() + GetStringLength(cszStringToAppend) - 1);
+	const size_t cnTerminantIndex = m_nSize - 1;
 	
+	ReinitializeAndCopy(m_szData, size() + GetStringLength(cszStringToAppend) - 1);
 
-	size_t nTerminantIndex = GetStringLength(m_szData) - 1;
-	for(size_t nIndex = nTerminantIndex; true; nIndex++)
+	for(size_t nIndex = cnTerminantIndex; true; nIndex++)
 	{
-		const char cchCharToAppend = cszStringToAppend[nIndex - nTerminantIndex];
+		const char cchCharToAppend = cszStringToAppend[nIndex - cnTerminantIndex];
 		m_szData[nIndex] = cchCharToAppend;
 		if(cchCharToAppend == '\0')
 		{
@@ -90,29 +82,29 @@ void Exercise_1::CMyString::Insert(const char* cszStringToInsert, const size_t n
 		return;
 	}
 
-	const size_t nNewSize = size() + nCountOfCharsToInsert;
-	char *szNewString = new char[nNewSize]; 
+	const size_t cnNewSize = size() + nCountOfCharsToInsert;
+	char *szNewString = new char[cnNewSize]; 
 
 	size_t nCurrentPosition = 0;
-	// Copying first part
-	for(; nCurrentPosition < nStartPosition; nCurrentPosition++)
-	{
-		szNewString[nCurrentPosition] = m_szData[nCurrentPosition];
-	}
-	// Beggining multiple insertion of given strings 
 	size_t nEndPosition = nStartPosition + nCountOfCharsToInsert;
-	for(; nCurrentPosition < nEndPosition; nCurrentPosition++){
-		szNewString[nCurrentPosition] = cszStringToInsert[nCurrentPosition - nStartPosition];
-	}
-	// Appending last part
-	for(; nCurrentPosition < nNewSize; nCurrentPosition++)
+	// Copying first part
+	for(; nCurrentPosition < cnNewSize; nCurrentPosition++)
 	{
-		szNewString[nCurrentPosition] = m_szData[nStartPosition + nCurrentPosition - nEndPosition];
+		if(nCurrentPosition < nStartPosition) // Copying first part
+		{
+			szNewString[nCurrentPosition] = m_szData[nCurrentPosition];
+		} else if(nCurrentPosition < nStartPosition + nCountOfCharsToInsert) // Inserting string to insert
+		{
+			szNewString[nCurrentPosition] = cszStringToInsert[nCurrentPosition - nStartPosition];
+		} else // Copying back first string
+		{
+			szNewString[nCurrentPosition] = m_szData[nStartPosition + nCurrentPosition - nEndPosition];
+		}
 	}
 
 	delete[] m_szData;
 	m_szData = szNewString;
-	m_nSize = nNewSize;
+	m_nSize = cnNewSize;
 }
 
 void Exercise_1::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, const std::size_t& nStringLength)
@@ -209,7 +201,7 @@ bool Exercise_1::CMyString::operator==(const CMyString& cStringToCompare) const
 	
 	for(std::size_t nIndex = 0; nIndex < size(); nIndex++)
 	{
-		if(data()[nIndex] != cStringToCompare[nIndex])
+		if(m_szData[nIndex] != cStringToCompare[nIndex])
 		{
 			return false;
 		}

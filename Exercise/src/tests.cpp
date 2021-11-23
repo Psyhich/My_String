@@ -129,6 +129,9 @@ TEST(CMyStringTest, EqualityTest)
 	
 	ASSERT_EQ(str1 == str2, true);
 
+	str2[0] = 'a';
+	ASSERT_EQ(str1 == str2, false);
+
 	str2 = str2 + "Hi";
 
 	ASSERT_EQ(str1 == str2, false);
@@ -136,6 +139,8 @@ TEST(CMyStringTest, EqualityTest)
 	Exercise_1::CMyString nullPtrString = nullptr;
 	ASSERT_EQ(nullPtrString == str1, false);
 	ASSERT_EQ(nullPtrString == nullPtrString, true);
+
+
 
 	str1 = "Same other1";
 	ASSERT_EQ(str1 == str2, false);

@@ -19,7 +19,7 @@ namespace Exercise_1
 
 		~CMyString();
 
-		inline std::size_t size() const noexcept { return m_nSize;}
+		inline size_t size() const noexcept { return m_nSize; }
 		inline const char* data() const noexcept { return m_szData; }
 
 		void Insert(const char* cszStringToInsert, const size_t nStartPosition, const size_t nCountOfCharsToInsert);
@@ -37,6 +37,19 @@ namespace Exercise_1
 			Insert(stringToInsert.data(), nStartPosition, stringToInsert.size() - 1);
 		}
 
+		/*void Delete(size_t nPosition, size_t nCharactersCount) noexcept;
+		CMyString Substring(size_t nPosition, size_t nCharactersCount) const noexcept;
+
+		size_t Find(const char *szStringToFind) const noexcept;
+		size_t Find(const CMyString &stringToFind) const noexcept;
+
+		CMyString Trim(size_t nPosition, size_t nCharactersCount) noexcept;
+
+		void ToUpperCase(size_t nStartPos, size_t nLasPos) noexcept;
+		void ToUpperCase() noexcept;
+		void ToLowerCase(size_t nStartPos, size_t nLasPos) noexcept;
+		void ToLowerCase() noexcept;*/
+
 		CMyString& operator=(const char* cpcCharsSequence);
 		CMyString operator+(const CMyString& cStringToAdd) const;
 		bool operator==(const CMyString& cStringToCompare) const;
@@ -45,13 +58,13 @@ namespace Exercise_1
 		inline char& operator[](std::size_t sIndex) { return m_szData[sIndex]; }
 	private:
 		// In my task I should write everything by myself, so I dont use C's string.h 
-		static std::size_t GetStringLength(const char *cszStringToCount) noexcept;
+		static size_t GetStringLength(const char *cszStringToCount) noexcept;
 		void CopyString(const char *cszStringToCopy);
 		void AppendToString(const char *cszStringToAppend);
 		void ReinitializeAndCopy(const char* cpszStringToCopy, const size_t& nStringLength);
 		static char* TryToAllocate(const size_t nLength) noexcept;
 	private:
-		std::size_t m_nSize{0};
+		size_t m_nSize{0};
 		char *m_szData{nullptr};
 	};
 }
