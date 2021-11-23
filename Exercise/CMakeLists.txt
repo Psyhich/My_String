@@ -25,6 +25,7 @@ endfunction()
 
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
 
 set(SOURCES classes.hpp classes.cpp)
 set(MAIN main.cpp)
@@ -33,6 +34,11 @@ set(TESTS tester.cpp)
 set(SOURCES include/my_string.h src/my_string.cpp)
 set(MAIN src/main.cpp)
 set(TESTS src/tests.cpp)
+
+# Setting flags for coverage test
+set(CMAKE_CXX_FLAGS_DEBUG " -g -O0 -fprofile-arcs -ftest-coverage ${CMAKE_C_FLAGS_DEBUG}")
+set(CMAKE_C_FLAGS_DEBUG " -g -O0 -fprofile-arcs -ftest-coverage ${CMAKE_C_FLAGS_DEBUG}")
+#option(CodeCoverage "CodeCoverage" OFF)
 
 # Making all warnings errors and turning on pedantic feature in GCC
 if(MSVC)
@@ -65,6 +71,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include/)
 add_executable(main ${MAIN})
 target_link_libraries(main ${PROJECT_NAME})
 
+
 add_executable(tests ${TESTS})
 target_link_libraries( tests
 	gtest # For basic library usage
@@ -73,12 +80,22 @@ target_link_libraries( tests
 	pthread # Needed for gtest
 	${PROJECT_NAME} # My test files
 )
+if(CMAKE_COMPILER_IS_GNUCXX)
+	include(CodeCoverage)
+	# Currenty I cannot make parameters more universal, so I have to use python regexp
+	SETUP_TARGET_FOR_COVERAGE_COBERTURA(tests_coverage tests cobertura "\".*/(tests.cpp|main.cpp)\"")
+endif()
+
 
 include(GoogleTest)
+#include(Dart)
 gtest_discover_tests(tests)
 
 # Automaticaly running all tests on build
 add_custom_command(TARGET main
-                   POST_BUILD
-                   COMMAND ctest -C $<CONFIGURATION> --output-on-failure)
+					POST_BUILD
+					COMMAND ctest -C $<CONFIGURATION> 
+						--output-on-failure
+						)
+
 
