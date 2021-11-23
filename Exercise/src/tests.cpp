@@ -26,6 +26,10 @@ public:
 	}
 };
 
+// ------------------------
+//	 Functionality tests
+// ------------------------
+
 TEST_F(CMyStringFixture, DataCorrectnesTest) 
 {
 	ASSERT_EQ(nTestDataLength, myString.size());
@@ -140,12 +144,22 @@ TEST(CMyStringTest, EqualityTest)
 	ASSERT_EQ(nullPtrString == str1, false);
 	ASSERT_EQ(nullPtrString == nullPtrString, true);
 
-
-
 	str1 = "Same other1";
 	ASSERT_EQ(str1 == str2, false);
-	
 }
+
+TEST(CMyStringTest, DeletionTest)
+{
+	const char* cszDeletedString = "He world";
+	Exercise_1::CMyString strToDeleteFrom{"Hello, world"};
+	strToDeleteFrom.Delete(2, 4);
+
+	ASSERT_STREQ(strToDeleteFrom.data(), cszDeletedString);
+}
+
+// ------------------------
+//	 Exceptions tests
+// ------------------------
 
 TEST(CMyStringFailTests, NullptrConstructor)
 {
@@ -206,4 +220,20 @@ TEST(CMyStringFailTests, WrongInsertionTest)
 
 	ASSERT_EQ(basicString.size(), nSizeBefore);
 	ASSERT_STREQ(basicString.data(), stringCopy.data());
+}
+
+TEST(CMyStringFailTests, DeletionFailTest)
+{
+	const char* szStartingString = "Hello";
+	Exercise_1::CMyString startingString{szStartingString};
+
+	startingString.Delete(10, 10);
+	ASSERT_STREQ(startingString.data(), szStartingString);
+
+	startingString.Delete(0, 10);
+	ASSERT_STREQ(startingString.data(), szStartingString);
+
+	// Trying to delete null terminant
+	startingString.Delete(startingString.size() - 1, 1);
+	ASSERT_STREQ(startingString.data(), szStartingString);
 }

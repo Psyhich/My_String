@@ -173,6 +173,77 @@ Exercise_1::CMyString::~CMyString()
 	}
 }
 
+void Exercise_1::CMyString::Delete(size_t nPosition, size_t nCharactersCount) noexcept
+{
+	if(nPosition >= m_nSize || nCharactersCount == 0 || 
+		m_nSize - nPosition < nCharactersCount)
+	{
+		return;
+	}
+
+	const size_t cnOldSize = m_nSize;
+	// Calculating new size with getting in mind that user can delete zero terminant
+	m_nSize -= nCharactersCount;
+	if(nPosition + nCharactersCount == cnOldSize)
+	{
+		m_nSize += 1;
+	}
+
+	char *szNewString = TryToAllocate(m_nSize);
+	if(szNewString == nullptr)
+	{
+		return;
+	}
+	
+	size_t nOldStringPosition = 0;
+	size_t nNewStringPosition = 0;
+
+	// Moving to cnOldSize - 2, to manualy add '\0' in the end in case we deleted it
+	while(nOldStringPosition < cnOldSize - 1) 
+	{
+		if(nOldStringPosition == nPosition)
+		{
+			nOldStringPosition += nCharactersCount;
+			continue;
+		}
+		
+		// Calculating index to delete
+		szNewString[nNewStringPosition] = m_szData[nOldStringPosition];
+		++nOldStringPosition;
+		++nNewStringPosition;
+	}
+
+	szNewString[m_nSize - 1] = '\0';
+
+	delete[] m_szData;
+	m_szData = szNewString;
+
+}
+/*Exercise_1::CMyString::CMyString Exercise_1::CMyString::Substring(size_t nPosition, size_t nCharactersCount) const noexcept
+{
+
+}
+
+size_t Exercise_1::CMyString::Find(const char *szStringToFind) const noexcept
+{
+
+}
+size_t Exercise_1::CMyString::Find(const CMyString &stringToFind) const noexcept
+{
+
+}
+
+Exercise_1::CMyString::CMyString Exercise_1::CMyString::Trim(size_t nPosition, size_t nCharactersCount) noexcept
+{
+
+}
+
+void ToUpperCase(size_t nStartPos, size_t nLasPos) noexcept;
+void ToUpperCase() noexcept;
+void ToLowerCase(size_t nStartPos, size_t nLasPos) noexcept;
+void ToLowerCase() noexcept;
+*/
+
 Exercise_1::CMyString& Exercise_1::CMyString::operator=(const char* cpszCharsSequence)
 {
 	size_t nNewSize = GetStringLength(cpszCharsSequence);

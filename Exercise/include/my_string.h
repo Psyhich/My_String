@@ -37,7 +37,7 @@ namespace Exercise_1
 			Insert(stringToInsert.data(), nStartPosition, stringToInsert.size() - 1);
 		}
 
-		/*void Delete(size_t nPosition, size_t nCharactersCount) noexcept;
+		void Delete(size_t nPosition, size_t nCharactersCount) noexcept;
 		CMyString Substring(size_t nPosition, size_t nCharactersCount) const noexcept;
 
 		size_t Find(const char *szStringToFind) const noexcept;
@@ -48,7 +48,7 @@ namespace Exercise_1
 		void ToUpperCase(size_t nStartPos, size_t nLasPos) noexcept;
 		void ToUpperCase() noexcept;
 		void ToLowerCase(size_t nStartPos, size_t nLasPos) noexcept;
-		void ToLowerCase() noexcept;*/
+		void ToLowerCase() noexcept;
 
 		CMyString& operator=(const char* cpcCharsSequence);
 		CMyString operator+(const CMyString& cStringToAdd) const;
