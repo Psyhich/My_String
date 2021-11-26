@@ -27,7 +27,7 @@ public:
 };
 
 // ------------------------
-//	 Functionality tests
+// |  Functionality tests |
 // ------------------------
 
 TEST_F(CMyStringFixture, DataCorrectnesTest) 
@@ -157,6 +157,24 @@ TEST(CMyStringTest, DeletionTest)
 	ASSERT_STREQ(strToDeleteFrom.data(), cszDeletedString);
 }
 
+TEST(CMyStringTest, ExhaustiveDeletionTest)
+{
+	// Doing exhaustive trim
+	MyStructs::CMyString mainString = "aaaaaaaaaaaaaaaaaaaaaaaa";
+	const size_t cnMaxCount = mainString.size();
+	size_t nCurrentCount = 0;
+	while(nCurrentCount <= cnMaxCount)
+	{
+		mainString.Delete(0, 1);
+		++nCurrentCount;
+		if(mainString.size() == 0)
+		{
+			break;
+		}
+	}
+	ASSERT_EQ(nCurrentCount, cnMaxCount - 1);
+}
+
 TEST(CMyStringTest, SubstringTest)
 {
 	const char* cszBaseString = "Hello world";
@@ -170,29 +188,83 @@ TEST(CMyStringTest, SubstringTest)
 
 TEST(CMyStringTest, FindTest)
 {
-	const char *cszFirstSubstring = "Hi";
+	const char *cszFirstSubstring = "Hello";
 	const char *cszSecondSubstring = "string";
-	const char *cszThirdSubstring = "!";
+	const char *cszThirdSubstring = "string!";
 
 	const MyStructs::CMyString mainString{"Hello, this is a test string for a test, Hi this is a test string!"};
 	// Calculating position of found string
 
-	size_t cnFoundPos = (strstr(mainString.data(), cszFirstSubstring) - mainString.data()) / sizeof(char);
+	// Using pointer arithmetics to calculate found position
+	size_t cnFoundPos = (strstr(mainString.data(), cszFirstSubstring) - 
+		mainString.data()) / sizeof(char);
 	auto position = mainString.Find(cszFirstSubstring);
 	ASSERT_EQ(*position, cnFoundPos);
 
-	cnFoundPos = (strstr(mainString.data(), cszSecondSubstring) - mainString.data()) / sizeof(char);
+	cnFoundPos = (strstr(mainString.data(), cszSecondSubstring) - 
+		mainString.data()) / sizeof(char);
 	position = mainString.Find(cszSecondSubstring);
 	ASSERT_EQ(*position, cnFoundPos);
 
-	cnFoundPos = (strstr(mainString.data(), cszThirdSubstring) - mainString.data()) / sizeof(char);
+	cnFoundPos = (strstr(mainString.data(), cszThirdSubstring) - 
+		mainString.data()) / sizeof(char);
 	position = mainString.Find(cszThirdSubstring);
 	ASSERT_EQ(*position, cnFoundPos);
+
+	const MyStructs::CMyString copyString{cszThirdSubstring};
+	position = mainString.Find(copyString);
+	ASSERT_EQ(*position, cnFoundPos);
+}
+
+TEST(CMyStringTest, TrimTest)
+{
+	const char *cszFirstToBeTrimmed = "Hello";
+	const char *cszSecondToBeTrimmed = "Hi";
+	const char *cszThirdToBeTrimmed = "string";
+
+	MyStructs::CMyString mainString{"Hi, Hello, this is a test string"};
+	MyStructs::CMyString workingString = mainString; // String that would call Delete methods
+
+	MyStructs::CMyString trimmed = mainString.Trim(4, 5);
+	workingString.Delete(4, 5);
+	ASSERT_STREQ(trimmed.data(), cszFirstToBeTrimmed);
+	ASSERT_EQ(mainString.size(), workingString.size());
+	ASSERT_STREQ(mainString.data(), workingString.data());
+
+	trimmed = mainString.Trim(0, 2);
+	workingString.Delete(0, 2);
+	ASSERT_STREQ(trimmed.data(), cszSecondToBeTrimmed);
+	ASSERT_EQ(mainString.size(), workingString.size());
+	ASSERT_STREQ(mainString.data(), workingString.data());
+	
+	trimmed = mainString.Trim(19, 7);
+	workingString.Delete(19, 7);
+	ASSERT_STREQ(trimmed.data(), cszThirdToBeTrimmed);
+	ASSERT_EQ(mainString.size(), workingString.size());
+	ASSERT_STREQ(mainString.data(), workingString.data());
+}
+
+TEST(CMyStringTest, ExhaustiveTrimTest)
+{
+	// Doing exhaustive trim
+	MyStructs::CMyString mainString = "aaaaaaaaaaaaaaaaaaaaaaaa";
+	const size_t cnMaxCount = mainString.size();
+	size_t nCurrentCount = 0;
+	while(nCurrentCount <= cnMaxCount)
+	{
+		mainString.Trim(0, 1);
+		++nCurrentCount;
+		if(mainString.size() == 0)
+		{
+			break;
+		}
+	}
+	ASSERT_EQ(nCurrentCount, cnMaxCount - 1);
 }
 
 
 // ------------------------
-//	 Exceptions tests
+// |   Exceptions tests	  |
 // ------------------------
 
 TEST(CMyStringFailTests, NullptrConstructor)
@@ -306,4 +378,19 @@ TEST(CMyStringFailTests, FindFailTest)
 
 	nFoundPos = stringToSearch.Find(nullptr);
 	ASSERT_EQ(nFoundPos, std::nullopt);
+}
+
+TEST(CMyStringFailTests, TrimFailTests)
+{
+	const char *cszMainString = "My main test string that would be tested by tests";
+	MyStructs::CMyString mainString{cszMainString};
+
+	mainString.Trim(0, 0);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.Trim(1000, 1);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.Trim(1, 1000);
+	ASSERT_STREQ(mainString.data(), cszMainString);
 }

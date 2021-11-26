@@ -42,7 +42,10 @@ namespace MyStructs
 		CMyString Substring(size_t nPosition, size_t nCharactersCount) const noexcept;
 
 		std::optional<size_t> Find(const char *szStringToFind) const noexcept;
-		std::optional<size_t> Find(const CMyString &stringToFind) const noexcept;
+		inline std::optional<size_t> Find(const CMyString &stringToFind) const noexcept
+		{
+			return Find(stringToFind.data());
+		}
 
 		CMyString Trim(size_t nPosition, size_t nCharactersCount) noexcept;
 
@@ -64,6 +67,15 @@ namespace MyStructs
 		void AppendToString(const char *cszStringToAppend);
 		void ReinitializeAndCopy(const char* cpszStringToCopy, const size_t& nStringLength);
 		void TryToAllocate(const size_t nLength) noexcept;
+		inline bool IsReachedTerminator(size_t nPosition, size_t nCountOfChars)
+		{
+			return nPosition + nCountOfChars == size();
+		}
+		inline bool IsOutOfBounds(size_t nPosition, size_t nCountOfChars)
+		{
+			return nPosition > size() || nCountOfChars == 0 || 
+				nCountOfChars > size();
+		}
 	private:
 		size_t m_nSize{0};
 		char *m_szData{nullptr};

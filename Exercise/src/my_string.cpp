@@ -3,7 +3,9 @@
 #include <iostream>
 
 #include "my_string.h"
-
+/*
+*	Be advised, TryToAllocate doesn't take care of releasing resources
+* */
 void MyStructs::CMyString::TryToAllocate(const size_t nLength) noexcept {
 	if(nLength == 0)
 	{
@@ -181,19 +183,22 @@ MyStructs::CMyString::~CMyString()
 
 void MyStructs::CMyString::Delete(size_t nPosition, size_t nCharactersCount) noexcept
 {
-	if(nPosition >= m_nSize || nCharactersCount == 0 || 
-		m_nSize - nPosition < nCharactersCount)
+	if(IsOutOfBounds(nPosition, nCharactersCount))
 	{
+		return;
+	}
+	if(nCharactersCount == size() - 1) 
+	{
+		delete[] m_szData;
+		m_szData = nullptr;
+		m_nSize = 0;
 		return;
 	}
 
 	const size_t cnOldSize = m_nSize;
 	// Calculating new size with getting in mind that user can delete zero terminant
-	m_nSize -= nCharactersCount;
-	if(nPosition + nCharactersCount == cnOldSize)
-	{
-		m_nSize += 1;
-	}
+	m_nSize -= nCharactersCount - IsReachedTerminator(nPosition, nCharactersCount);
+
 
 	char *szOldString = m_szData; 
 	TryToAllocate(m_nSize);
@@ -214,7 +219,6 @@ void MyStructs::CMyString::Delete(size_t nPosition, size_t nCharactersCount) noe
 			continue;
 		}
 		
-		// Calculating index to delete
 		m_szData[nNewStringPosition] = szOldString[nOldStringPosition];
 		++nOldStringPosition;
 		++nNewStringPosition;
@@ -261,9 +265,10 @@ std::optional<size_t> MyStructs::CMyString::Find(const char *cszStringToFind) co
 	}
 	nStringLength -= 1; // Excluding terminator
 
-	size_t nIndex = 0;
-	size_t nCurrentStringIndex = 0;
+	size_t nIndex = 0; // Index for iterating through this.size()
+	size_t nCurrentStringIndex = 0; // Index for iterating through cszStringToFind
 	bool bIsLookingFor = false;
+
 	for(; nIndex < m_nSize; nIndex++)
 	{
 		if(m_szData[nIndex] != cszStringToFind[nCurrentStringIndex])
@@ -285,17 +290,71 @@ std::optional<size_t> MyStructs::CMyString::Find(const char *cszStringToFind) co
 	return bIsLookingFor ? std::optional<size_t>(nIndex - nStringLength + 1) : std::nullopt;
 }
 
+
+MyStructs::CMyString MyStructs::CMyString::Trim(size_t nPosition, size_t nCharactersCount) noexcept
+{
+	CMyString newString{nullptr};
+	if(IsOutOfBounds(nPosition, nCharactersCount))
+	{
+		return newString;
+	}
+	
+	// Checking if we should just swap values
+	if(nCharactersCount == size() - 1) 
+	{
+		std::swap(m_nSize, newString.m_nSize);
+		std::swap(m_szData, newString.m_szData);
+		return newString;
+	}
+	
+	// Checking if we are triming terminator
+	const size_t cnOldSize = size();
+	char *cszOldString = m_szData;
+
+	const bool cbIsReachedTerminator = IsReachedTerminator(nPosition, nCharactersCount);
+	m_nSize = cnOldSize - nCharactersCount;
+	newString.m_nSize = nCharactersCount + 1;
+
+	if(cbIsReachedTerminator)
+	{
+		++m_nSize;
+		--newString.m_nSize; // If we already will copy terminator reducing size by 1
+	}
+
+	newString.TryToAllocate(newString.m_nSize);
+	TryToAllocate(m_nSize);
+	// If we cannot allocate new data, backing up to previous and exiting
+	if(!newString.data() || !data())
+	{
+		m_szData = cszOldString;
+		m_nSize = cnOldSize;
+		return newString;
+	}
+
+	const size_t endPosition = nPosition + nCharactersCount;
+	for(size_t nIndex = 0; nIndex < cnOldSize - 1; nIndex++){
+		if(nIndex < nPosition)
+		{
+			m_szData[nIndex] = cszOldString[nIndex];
+		} else if(nIndex >= endPosition)
+		{
+			m_szData[nIndex - newString.size() + 1] = cszOldString[nIndex];
+		} else 
+		{
+			newString.m_szData[nIndex - nPosition] = cszOldString[nIndex];
+		}
+		
+	}
+
+	// Manually setting terminators in case we have deleted them
+	m_szData[size() - 1] = '\0';
+	newString[newString.size() - 1] = '\0';
+
+	delete[] cszOldString;
+	return newString;
+}
+
 /*
-size_t MyStructs::CMyString::Find(const CMyString &stringToFind) const noexcept
-{
-
-}
-
-MyStructs::CMyString::CMyString MyStructs::CMyString::Trim(size_t nPosition, size_t nCharactersCount) noexcept
-{
-
-}
-
 void ToUpperCase(size_t nStartPos, size_t nLasPos) noexcept;
 void ToUpperCase() noexcept;
 void ToLowerCase(size_t nStartPos, size_t nLasPos) noexcept;
