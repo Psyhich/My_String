@@ -150,11 +150,22 @@ TEST(CMyStringTest, EqualityTest)
 
 TEST(CMyStringTest, DeletionTest)
 {
-	const char* cszDeletedString = "He world";
+	//"Hello, world"
+	const char *cszFirstIteration = "He world";
+	const char *cszSecondIteration = "world";
 	MyStructs::CMyString strToDeleteFrom{"Hello, world"};
-	strToDeleteFrom.Delete(2, 4);
 
-	ASSERT_STREQ(strToDeleteFrom.data(), cszDeletedString);
+	//"He world"
+	strToDeleteFrom.Delete(2, 4);
+	ASSERT_STREQ(strToDeleteFrom.data(), cszFirstIteration);
+
+	//"world"
+	strToDeleteFrom.Delete(0, 3);
+	ASSERT_STREQ(strToDeleteFrom.data(), cszSecondIteration);
+
+	//nullptr
+	strToDeleteFrom.Delete(0, strToDeleteFrom.size() - 1);
+	ASSERT_EQ(strToDeleteFrom.data(), nullptr);
 }
 
 TEST(CMyStringTest, ExhaustiveDeletionTest)
