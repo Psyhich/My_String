@@ -1,6 +1,7 @@
 #ifndef MY_STRING_H
 #define MY_STRING_H
 
+#include <optional>
 #include <cstddef>
 
 namespace MyStructs 
@@ -40,8 +41,8 @@ namespace MyStructs
 		void Delete(size_t nPosition, size_t nCharactersCount) noexcept;
 		CMyString Substring(size_t nPosition, size_t nCharactersCount) const noexcept;
 
-		size_t Find(const char *szStringToFind) const noexcept;
-		size_t Find(const CMyString &stringToFind) const noexcept;
+		std::optional<size_t> Find(const char *szStringToFind) const noexcept;
+		std::optional<size_t> Find(const CMyString &stringToFind) const noexcept;
 
 		CMyString Trim(size_t nPosition, size_t nCharactersCount) noexcept;
 

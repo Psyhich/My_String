@@ -247,11 +247,45 @@ MyStructs::CMyString MyStructs::CMyString::Substring(size_t nPosition, size_t nC
 
 	return substring;
 }
-/*
-size_t MyStructs::CMyString::Find(const char *szStringToFind) const noexcept
+std::optional<size_t> MyStructs::CMyString::Find(const char *cszStringToFind) const noexcept
 {
+	if(cszStringToFind == nullptr)
+	{
+		return std::nullopt;
+	}
+	
+	size_t nStringLength = GetStringLength(cszStringToFind);
+	if(nStringLength <= 1)
+	{
+		return std::nullopt;
+	}
+	nStringLength -= 1; // Excluding terminator
 
+	size_t nIndex = 0;
+	size_t nCurrentStringIndex = 0;
+	bool bIsLookingFor = false;
+	for(; nIndex < m_nSize; nIndex++)
+	{
+		if(m_szData[nIndex] != cszStringToFind[nCurrentStringIndex])
+		{
+			nCurrentStringIndex = 0;
+			bIsLookingFor = false;
+		} else if(m_szData[nIndex] == cszStringToFind[nCurrentStringIndex]){
+			++nCurrentStringIndex;
+			bIsLookingFor = true;
+			// Breaking if we reached end of this string
+			if(nCurrentStringIndex == nStringLength)
+			{
+				break;
+			}
+
+		}
+	}
+
+	return bIsLookingFor ? std::optional<size_t>(nIndex - nStringLength + 1) : std::nullopt;
 }
+
+/*
 size_t MyStructs::CMyString::Find(const CMyString &stringToFind) const noexcept
 {
 

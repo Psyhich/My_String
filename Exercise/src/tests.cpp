@@ -168,6 +168,29 @@ TEST(CMyStringTest, SubstringTest)
 	ASSERT_STREQ(substring.data(), cszSubstring);
 }
 
+TEST(CMyStringTest, FindTest)
+{
+	const char *cszFirstSubstring = "Hi";
+	const char *cszSecondSubstring = "string";
+	const char *cszThirdSubstring = "!";
+
+	const MyStructs::CMyString mainString{"Hello, this is a test string for a test, Hi this is a test string!"};
+	// Calculating position of found string
+
+	size_t cnFoundPos = (strstr(mainString.data(), cszFirstSubstring) - mainString.data()) / sizeof(char);
+	auto position = mainString.Find(cszFirstSubstring);
+	ASSERT_EQ(*position, cnFoundPos);
+
+	cnFoundPos = (strstr(mainString.data(), cszSecondSubstring) - mainString.data()) / sizeof(char);
+	position = mainString.Find(cszSecondSubstring);
+	ASSERT_EQ(*position, cnFoundPos);
+
+	cnFoundPos = (strstr(mainString.data(), cszThirdSubstring) - mainString.data()) / sizeof(char);
+	position = mainString.Find(cszThirdSubstring);
+	ASSERT_EQ(*position, cnFoundPos);
+}
+
+
 // ------------------------
 //	 Exceptions tests
 // ------------------------
@@ -272,3 +295,15 @@ TEST(CMyStringFailTests, SubstringFailTest)
 	ASSERT_EQ(substring.data(), nullptr);
 }
 
+TEST(CMyStringFailTests, FindFailTest)
+{
+	const char *nullString = "";
+
+	const MyStructs::CMyString stringToSearch{"Hi hi hi hi hi hi hi"};
+
+	auto nFoundPos = stringToSearch.Find(nullString);
+	ASSERT_EQ(nFoundPos, std::nullopt);
+
+	nFoundPos = stringToSearch.Find(nullptr);
+	ASSERT_EQ(nFoundPos, std::nullopt);
+}
