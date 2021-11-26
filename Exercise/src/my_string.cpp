@@ -354,12 +354,32 @@ MyStructs::CMyString MyStructs::CMyString::Trim(size_t nPosition, size_t nCharac
 	return newString;
 }
 
-/*
-void ToUpperCase(size_t nStartPos, size_t nLasPos) noexcept;
-void ToUpperCase() noexcept;
-void ToLowerCase(size_t nStartPos, size_t nLasPos) noexcept;
-void ToLowerCase() noexcept;
-*/
+void MyStructs::CMyString::ToUpperCase(size_t nStartPos, size_t nLasPos) noexcept
+{
+	if(IsOutOfBounds(nStartPos, nLasPos - nStartPos))
+	{
+		return;
+	}
+
+	for(size_t nIndex = nStartPos; nIndex < nLasPos; nIndex++)
+	{
+		m_szData[nIndex] = toupper(m_szData[nIndex]);
+	}
+}
+
+void MyStructs::CMyString::ToLowerCase(size_t nStartPos, size_t nLasPos) noexcept
+{
+	if(IsOutOfBounds(nStartPos, nLasPos - nStartPos))
+	{
+		return;
+	}
+
+	for(size_t nIndex = nStartPos; nIndex < nLasPos; nIndex++)
+	{
+		m_szData[nIndex] = tolower(m_szData[nIndex]);
+	}
+
+}
 
 MyStructs::CMyString& MyStructs::CMyString::operator=(const char* cpszCharsSequence)
 {

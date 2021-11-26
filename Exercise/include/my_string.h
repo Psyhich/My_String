@@ -8,6 +8,7 @@ namespace MyStructs
 {
 	/*
 	* STL like class for storing and using zero terminated string
+	* All specified ranges will exclude last value and include the first one
 	* */
 	class CMyString 
 	{ 
@@ -50,9 +51,15 @@ namespace MyStructs
 		CMyString Trim(size_t nPosition, size_t nCharactersCount) noexcept;
 
 		void ToUpperCase(size_t nStartPos, size_t nLasPos) noexcept;
-		void ToUpperCase() noexcept;
+		inline void ToUpperCase() noexcept
+		{
+			ToUpperCase(0, size() - 1);
+		}
 		void ToLowerCase(size_t nStartPos, size_t nLasPos) noexcept;
-		void ToLowerCase() noexcept;
+		inline void ToLowerCase() noexcept 
+		{
+			ToLowerCase(0, size() - 1);
+		}
 
 		CMyString& operator=(const char* cpcCharsSequence);
 		CMyString operator+(const CMyString& cStringToAdd) const;

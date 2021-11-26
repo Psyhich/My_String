@@ -273,6 +273,47 @@ TEST(CMyStringTest, ExhaustiveTrimTest)
 	ASSERT_EQ(nCurrentCount, cnMaxCount - 1);
 }
 
+TEST(CMyStringTest, ToUpperCaseTest)
+{
+	const char *cszStartVariant = "hia world"; 
+	const char *cszRightResult = "HIA WORLD";
+	const char *cszSecondRightResult = "HIa world";
+	const char *cszThirdRightResult = "HIa woRLd";
+
+	MyStructs::CMyString mainString{cszStartVariant};
+
+	mainString.ToUpperCase();
+	ASSERT_STREQ(mainString.data(), cszRightResult);
+
+	mainString = cszStartVariant;
+	mainString.ToUpperCase(0, 2);
+	ASSERT_STREQ(mainString.data(), cszSecondRightResult);
+
+	mainString.ToUpperCase(6, 8);
+	ASSERT_STREQ(mainString.data(), cszThirdRightResult);
+
+}
+
+TEST(CMyStringTest, ToLowerCaseTest)
+{
+	const char *cszStartVariant = "HIA WORLD"; 
+	const char *cszRightResult = "hia world";
+	const char *cszSecondRightResult = "hiA WORLD";
+	const char *cszThirdRightResult = "hiA WOrlD";
+
+	MyStructs::CMyString mainString{cszStartVariant};
+
+	mainString.ToLowerCase();
+	ASSERT_STREQ(mainString.data(), cszRightResult);
+
+	mainString = cszStartVariant;
+	mainString.ToLowerCase(0, 2);
+	ASSERT_STREQ(mainString.data(), cszSecondRightResult);
+
+	mainString.ToLowerCase(6, 8);
+	ASSERT_STREQ(mainString.data(), cszThirdRightResult);
+
+}
 
 // ------------------------
 // |   Exceptions tests	  |
@@ -403,5 +444,35 @@ TEST(CMyStringFailTests, TrimFailTests)
 	ASSERT_STREQ(mainString.data(), cszMainString);
 
 	mainString.Trim(1, 1000);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+}
+
+TEST(CMyStringFailTests, UpperCaseFailTest)
+{
+	const char *cszMainString = "Some trial string";
+	MyStructs::CMyString mainString{cszMainString};
+
+	mainString.ToUpperCase(40, 1);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.ToUpperCase(0, 100);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.ToUpperCase(0, 0);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+}
+
+TEST(CMyStringFailTests, LowerCaseFailTest)
+{
+	const char *cszMainString = "Some trial string";
+	MyStructs::CMyString mainString{cszMainString};
+
+	mainString.ToLowerCase(40, 1);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.ToLowerCase(0, 100);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.ToLowerCase(0, 0);
 	ASSERT_STREQ(mainString.data(), cszMainString);
 }
