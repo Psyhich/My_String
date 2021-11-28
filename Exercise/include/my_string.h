@@ -40,7 +40,26 @@ namespace MyStructs
 		}
 
 		void Delete(size_t nPosition, size_t nCharactersCount) noexcept;
+		inline void DeleteRight(size_t nPosition) noexcept
+		{
+			Delete(nPosition, size() - nPosition);
+		}
+
+		inline void DeleteLeft(size_t nPosition) noexcept
+		{
+			Delete(0, nPosition);
+		}
+
 		CMyString Substring(size_t nPosition, size_t nCharactersCount) const noexcept;
+		inline CMyString SubstringRight(size_t nPosition) noexcept
+		{
+			return Substring(nPosition, size() - nPosition);
+		}
+
+		inline CMyString SubstringLeft(size_t nPosition) noexcept
+		{
+			return Substring(0, nPosition);
+		}
 
 		std::optional<size_t> Find(const char *szStringToFind) const noexcept;
 		inline std::optional<size_t> Find(const CMyString &stringToFind) const noexcept
@@ -49,6 +68,15 @@ namespace MyStructs
 		}
 
 		CMyString Trim(size_t nPosition, size_t nCharactersCount) noexcept;
+		inline CMyString TrimRight(size_t nPosition) noexcept
+		{
+			return Trim(nPosition, size() - nPosition);
+		}
+
+		inline CMyString TrimLeft(size_t nPosition) noexcept
+		{
+			return Trim(0, nPosition);
+		}
 
 		void ToUpperCase(size_t nStartPos, size_t nLasPos) noexcept;
 		inline void ToUpperCase() noexcept
