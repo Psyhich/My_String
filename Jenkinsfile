@@ -59,7 +59,6 @@ pipeline {
 					publishCoverage adapters: 
 						[coberturaAdapter('cobertura.xml')], 
 						sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
-					echo env.BRANCH_NAME
 				}
 				step(
 					[$class: 'MasterCoverageAction', 
