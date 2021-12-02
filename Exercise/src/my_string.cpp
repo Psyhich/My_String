@@ -277,7 +277,7 @@ std::optional<size_t> MyStructs::CMyString::Find(const char *cszStringToFind) co
 		if(m_szData[nIndex] != cszStringToFind[nCurrentStringIndex])
 		{
 			nCurrentStringIndex = 0;
-		} else if(m_szData[nIndex] == cszStringToFind[nCurrentStringIndex]){
+		} else {
 			++nCurrentStringIndex;
 			// Breaking if we reached end of this string
 			if(nCurrentStringIndex == nStringLength)
@@ -353,7 +353,10 @@ void MyStructs::CMyString::ToUpperCase(size_t nStartPos, size_t nLasPos) noexcep
 
 	for(size_t nIndex = nStartPos; nIndex < nLasPos; nIndex++)
 	{
-		m_szData[nIndex] = toupper(m_szData[nIndex]);
+		if(m_szData[nIndex] >= 'a' && m_szData[nIndex] <= 'z')
+		{
+			m_szData[nIndex] = m_szData[nIndex] - 32;
+		}
 	}
 }
 
@@ -366,7 +369,10 @@ void MyStructs::CMyString::ToLowerCase(size_t nStartPos, size_t nLasPos) noexcep
 
 	for(size_t nIndex = nStartPos; nIndex < nLasPos; nIndex++)
 	{
-		m_szData[nIndex] = tolower(m_szData[nIndex]);
+		if(m_szData[nIndex] >= 'A' && m_szData[nIndex] < 'Z')
+		{
+			m_szData[nIndex] = m_szData[nIndex] + 32;
+		}
 	}
 
 }

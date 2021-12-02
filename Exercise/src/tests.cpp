@@ -247,9 +247,7 @@ TEST(CMyStringTest, TrimTest)
 	ASSERT_EQ(trimmed.size(), cnSecondSize);
 	ASSERT_STREQ(trimmed.data(), cszSecondResult);
 
-	printf("%s\n", trimmed.data());
 	trimmed = trimmed.Trim(13, 10, 'c');
-	printf("%s\n", trimmed.data());
 	ASSERT_EQ(trimmed.size(), cnThirdSize);
 	ASSERT_STREQ(trimmed.data(), cszThirdResult);
 }
