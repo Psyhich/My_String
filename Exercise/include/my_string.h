@@ -89,6 +89,8 @@ namespace MyStructs
 			ToLowerCase(0, size() - 1);
 		}
 
+		std::optional<int> ToInt() const noexcept;
+
 		CMyString& operator=(const char* cpcCharsSequence);
 		CMyString operator+(const CMyString& cStringToAdd) const;
 		bool operator==(const CMyString& cStringToCompare) const;

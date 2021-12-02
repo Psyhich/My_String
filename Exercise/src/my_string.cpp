@@ -377,6 +377,30 @@ void MyStructs::CMyString::ToLowerCase(size_t nStartPos, size_t nLasPos) noexcep
 
 }
 
+std::optional<int> MyStructs::CMyString::ToInt() const noexcept 
+{
+	if(data() == nullptr || size() <= 1)
+	{
+		return std::nullopt;
+	}
+	int iConstructedNumber = 0;
+	int iCurrentPower = 1;
+	for(size_t nIndex = 0; nIndex < size() - 1; nIndex++)
+	{
+		const int ciCurrentChar = (int)m_szData[size() - 2 - nIndex];
+		if(ciCurrentChar >= 48 && ciCurrentChar <= 57)
+		{
+			iConstructedNumber += iCurrentPower  * (ciCurrentChar - 48);
+		} else 
+		{
+			return std::nullopt;
+		}
+		iCurrentPower *= 10;
+	}
+
+	return iConstructedNumber;
+}
+
 MyStructs::CMyString& MyStructs::CMyString::operator=(const char* cpszCharsSequence)
 {
 	size_t nNewSize = GetStringLength(cpszCharsSequence);

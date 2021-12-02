@@ -305,6 +305,29 @@ TEST(CMyStringTest, ToLowerCaseTest)
 
 }
 
+TEST(CMyStringTest, ToIntTest)
+{
+	MyStructs::CMyString numberString{"100"};
+	std::optional<int> parsedValue{atoi(numberString.data())};
+	ASSERT_EQ(parsedValue, numberString.ToInt());
+	
+	numberString = "2394";
+	parsedValue = 2394;
+	ASSERT_EQ(parsedValue, numberString.ToInt());
+
+	parsedValue = std::nullopt;
+	numberString = "This is not int";
+	ASSERT_EQ(parsedValue, numberString.ToInt());
+
+	parsedValue = std::nullopt;
+	numberString = "22.8";
+	ASSERT_EQ(parsedValue, numberString.ToInt());
+
+	parsedValue = std::nullopt;
+	numberString = nullptr;
+	ASSERT_EQ(parsedValue, numberString.ToInt());
+}
+
 // ------------------------
 // |   Exceptions tests	  |
 // ------------------------
