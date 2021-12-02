@@ -229,48 +229,40 @@ TEST(CMyStringTest, FindTest)
 
 TEST(CMyStringTest, TrimTest)
 {
-	const char *cszFirstToBeTrimmed = "Hello";
-	const char *cszSecondToBeTrimmed = "Hi";
-	const char *cszThirdToBeTrimmed = "string";
+	// Adding 1 to size because strlen excludes '\0'
+	const char *cszFirstResult = " test, bbbbb other test, cccccc lul";
+	const size_t cnFirstSize = strlen(cszFirstResult) + 1;
+	const char *cszSecondResult = " other test, cccccc lul";
+	const size_t cnSecondSize = strlen(cszSecondResult) + 1;
+	const char *cszThirdResult = " lul";
+	const size_t cnThirdSize = strlen(cszThirdResult) + 1;
 
-	MyStructs::CMyString mainString{"Hi, Hello, this is a test string"};
-	MyStructs::CMyString workingString = mainString; // String that would call Delete methods
+	MyStructs::CMyString mainString{"aaaaa test, bbbbb other test, cccccc lul"};
 
-	MyStructs::CMyString trimmed = mainString.Trim(4, 5);
-	workingString.Delete(4, 5);
-	ASSERT_STREQ(trimmed.data(), cszFirstToBeTrimmed);
-	ASSERT_EQ(mainString.size(), workingString.size());
-	ASSERT_STREQ(mainString.data(), workingString.data());
+	MyStructs::CMyString trimmed = mainString.Trim(0, mainString.size(), 'a');
+	ASSERT_EQ(trimmed.size(), cnFirstSize);
+	ASSERT_STREQ(trimmed.data(), cszFirstResult);
 
-	trimmed = mainString.Trim(0, 2);
-	workingString.Delete(0, 2);
-	ASSERT_STREQ(trimmed.data(), cszSecondToBeTrimmed);
-	ASSERT_EQ(mainString.size(), workingString.size());
-	ASSERT_STREQ(mainString.data(), workingString.data());
-	
-	trimmed = mainString.Trim(19, 7);
-	workingString.Delete(19, 7);
-	ASSERT_STREQ(trimmed.data(), cszThirdToBeTrimmed);
-	ASSERT_EQ(mainString.size(), workingString.size());
-	ASSERT_STREQ(mainString.data(), workingString.data());
+	trimmed = trimmed.Trim(7, 28, 'b');
+	ASSERT_EQ(trimmed.size(), cnSecondSize);
+	ASSERT_STREQ(trimmed.data(), cszSecondResult);
+
+	printf("%s\n", trimmed.data());
+	trimmed = trimmed.Trim(13, 10, 'c');
+	printf("%s\n", trimmed.data());
+	ASSERT_EQ(trimmed.size(), cnThirdSize);
+	ASSERT_STREQ(trimmed.data(), cszThirdResult);
 }
 
 TEST(CMyStringTest, ExhaustiveTrimTest)
 {
 	// Doing exhaustive trim
 	MyStructs::CMyString mainString = "aaaaaaaaaaaaaaaaaaaaaaaa";
-	const size_t cnMaxCount = mainString.size();
-	size_t nCurrentCount = 0;
-	while(nCurrentCount <= cnMaxCount)
-	{
-		mainString.Trim(0, 1);
-		++nCurrentCount;
-		if(mainString.size() == 0)
-		{
-			break;
-		}
-	}
-	ASSERT_EQ(nCurrentCount, cnMaxCount - 1);
+	auto trimmed = mainString.Trim(0, mainString.size(), 'a');
+	const size_t cnNewSize = 0;
+
+	ASSERT_EQ(trimmed.size(), cnNewSize);
+	ASSERT_STREQ(trimmed.data(), nullptr);
 }
 
 TEST(CMyStringTest, ToUpperCaseTest)
@@ -437,14 +429,14 @@ TEST(CMyStringFailTests, TrimFailTests)
 	const char *cszMainString = "My main test string that would be tested by tests";
 	MyStructs::CMyString mainString{cszMainString};
 
-	mainString.Trim(0, 0);
-	ASSERT_STREQ(mainString.data(), cszMainString);
+	auto trimmed = mainString.Trim(0, 0);
+	ASSERT_STREQ(trimmed.data(), nullptr);
 
-	mainString.Trim(1000, 1);
-	ASSERT_STREQ(mainString.data(), cszMainString);
+	trimmed = mainString.Trim(1000, 1);
+	ASSERT_STREQ(trimmed.data(), nullptr);
 
-	mainString.Trim(1, 1000);
-	ASSERT_STREQ(mainString.data(), cszMainString);
+	trimmed = mainString.Trim(1, 1000);
+	ASSERT_STREQ(trimmed.data(), nullptr);
 }
 
 TEST(CMyStringFailTests, UpperCaseFailTest)

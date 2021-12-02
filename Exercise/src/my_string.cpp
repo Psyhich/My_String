@@ -131,7 +131,7 @@ void MyStructs::CMyString::ReinitializeAndCopy(const char* cszStringToCopy, cons
 	bool bShouldCleanup = m_szData != nullptr && m_nSize != nStringLength;
 	// Doing check if we need to reinitialize the char array
 	char *szOldString = m_szData;
-	m_szData = nullptr;
+	
 	if(m_szData == nullptr || bShouldCleanup)
 	{
 		TryToAllocate(nStringLength);
@@ -232,14 +232,15 @@ void MyStructs::CMyString::Delete(size_t nPosition, size_t nCharactersCount) noe
 MyStructs::CMyString MyStructs::CMyString::Substring(size_t nPosition, size_t nCharactersCount) const noexcept
 {
 	CMyString substring{nullptr}; 
-	if(nPosition >= m_nSize || nCharactersCount == 0 || 
-		m_nSize - nPosition < nCharactersCount)
+	if(IsOutOfBounds(nPosition, nCharactersCount))
 	{
+		printf("Given range is out of bounds\n");
 		return substring;
 	}
 	substring.TryToAllocate(nCharactersCount);
 	if(substring.m_szData == nullptr)
 	{
+		printf("Failed to allocate substring\n");
 		return substring;
 	}
 
@@ -255,102 +256,91 @@ std::optional<size_t> MyStructs::CMyString::Find(const char *cszStringToFind) co
 {
 	if(cszStringToFind == nullptr)
 	{
+		printf("Given string is nullptr\n");
 		return std::nullopt;
 	}
 	
 	size_t nStringLength = GetStringLength(cszStringToFind);
 	if(nStringLength <= 1)
 	{
+		printf("Given string is to small tp match anything\n");
 		return std::nullopt;
 	}
 	nStringLength -= 1; // Excluding terminator
 
 	size_t nIndex = 0; // Index for iterating through this.size()
 	size_t nCurrentStringIndex = 0; // Index for iterating through cszStringToFind
-	bool bIsLookingFor = false;
+	bool bIsFoundString = false;
 
 	for(; nIndex < m_nSize; nIndex++)
 	{
 		if(m_szData[nIndex] != cszStringToFind[nCurrentStringIndex])
 		{
 			nCurrentStringIndex = 0;
-			bIsLookingFor = false;
 		} else if(m_szData[nIndex] == cszStringToFind[nCurrentStringIndex]){
 			++nCurrentStringIndex;
-			bIsLookingFor = true;
 			// Breaking if we reached end of this string
 			if(nCurrentStringIndex == nStringLength)
 			{
+				bIsFoundString = true;
 				break;
 			}
 
 		}
 	}
 
-	return bIsLookingFor ? std::optional<size_t>(nIndex - nStringLength + 1) : std::nullopt;
+	return bIsFoundString ? std::optional<size_t>(nIndex - nStringLength + 1) : std::nullopt;
 }
 
 
-MyStructs::CMyString MyStructs::CMyString::Trim(size_t nPosition, size_t nCharactersCount) noexcept
+MyStructs::CMyString MyStructs::CMyString::Trim(size_t nPosition, size_t nCharactersCount, char cFilter) const noexcept
 {
 	CMyString newString{nullptr};
 	if(IsOutOfBounds(nPosition, nCharactersCount))
 	{
+		printf("Given range is out of bounds\n");
 		return newString;
 	}
-	
-	// Checking if we should just swap values
-	if(nCharactersCount == size() - 1) 
+	const size_t cnEndPosition  = nPosition + nCharactersCount;
+	size_t nNewSize{0};
+	// Calculating new size of string
+	for(size_t nCurrentIndex = nPosition; nCurrentIndex < cnEndPosition; nCurrentIndex++)
 	{
-		std::swap(m_nSize, newString.m_nSize);
-		std::swap(m_szData, newString.m_szData);
-		return newString;
-	}
-	
-	// Checking if we are triming terminator
-	const size_t cnOldSize = size();
-	char *cszOldString = m_szData;
-
-	const bool cbIsReachedTerminator = IsReachedTerminator(nPosition, nCharactersCount);
-	m_nSize = cnOldSize - nCharactersCount;
-	newString.m_nSize = nCharactersCount + 1;
-
-	if(cbIsReachedTerminator)
-	{
-		++m_nSize;
-		--newString.m_nSize; // If we already will copy terminator reducing size by 1
-	}
-
-	newString.TryToAllocate(newString.m_nSize);
-	TryToAllocate(m_nSize);
-	// If we cannot allocate new data, backing up to previous and exiting
-	if(!newString.data() || !data())
-	{
-		m_szData = cszOldString;
-		m_nSize = cnOldSize;
-		return newString;
-	}
-
-	const size_t endPosition = nPosition + nCharactersCount;
-	for(size_t nIndex = 0; nIndex < cnOldSize - 1; nIndex++){
-		if(nIndex < nPosition)
+		if(m_szData[nCurrentIndex] != cFilter)
 		{
-			m_szData[nIndex] = cszOldString[nIndex];
-		} else if(nIndex >= endPosition)
-		{
-			m_szData[nIndex - newString.size() + 1] = cszOldString[nIndex];
-		} else 
-		{
-			newString.m_szData[nIndex - nPosition] = cszOldString[nIndex];
+			nNewSize += 1;
 		}
-		
 	}
 
-	// Manually setting terminators in case we have deleted them
-	m_szData[size() - 1] = '\0';
-	newString[newString.size() - 1] = '\0';
+	if(cnEndPosition != size())
+	{
+		++nNewSize;
+	}
 
-	delete[] cszOldString;
+	if(nNewSize == 1) // 1 because we already included '\0' in any variant
+	{
+		return newString;
+	}
+
+	newString.TryToAllocate(nNewSize);
+	if(newString.data() == nullptr)
+	{
+		printf("Failed to allocate new string\n");
+		return newString;
+	}
+
+	// Assigning values from current string to new one while excluding filter
+	size_t nRealIndex = 0;
+	for(size_t nCurrentIndex = nPosition; nCurrentIndex < cnEndPosition; nCurrentIndex++)
+	{
+		if(m_szData[nCurrentIndex] != cFilter)
+		{
+			newString.m_szData[nRealIndex] = m_szData[nCurrentIndex];
+			++nRealIndex;
+		}
+	}
+	// Assigning \0 in case range doesn't cover it
+	newString.m_szData[nNewSize - 1] = '\0';
 	return newString;
 }
 

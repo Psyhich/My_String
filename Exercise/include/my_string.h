@@ -9,7 +9,7 @@ namespace MyStructs
 	/*
 	* STL like class for storing and using zero terminated string
 	* All specified ranges will exclude last value and include the first one
-	* */
+	*/
 	class CMyString 
 	{ 
 	public:
@@ -51,12 +51,12 @@ namespace MyStructs
 		}
 
 		CMyString Substring(size_t nPosition, size_t nCharactersCount) const noexcept;
-		inline CMyString SubstringRight(size_t nPosition) noexcept
+		inline CMyString SubstringRight(size_t nPosition) const noexcept
 		{
 			return Substring(nPosition, size() - nPosition);
 		}
 
-		inline CMyString SubstringLeft(size_t nPosition) noexcept
+		inline CMyString SubstringLeft(size_t nPosition) const noexcept
 		{
 			return Substring(0, nPosition);
 		}
@@ -67,13 +67,13 @@ namespace MyStructs
 			return Find(stringToFind.data());
 		}
 
-		CMyString Trim(size_t nPosition, size_t nCharactersCount) noexcept;
-		inline CMyString TrimRight(size_t nPosition) noexcept
+		CMyString Trim(size_t nPosition, size_t nCharactersCount, char cFilter=' ') const noexcept;
+		inline CMyString TrimRight(size_t nPosition) const noexcept
 		{
 			return Trim(nPosition, size() - nPosition);
 		}
 
-		inline CMyString TrimLeft(size_t nPosition) noexcept
+		inline CMyString TrimLeft(size_t nPosition) const noexcept
 		{
 			return Trim(0, nPosition);
 		}
@@ -106,7 +106,7 @@ namespace MyStructs
 		{
 			return nPosition + nCountOfChars == size();
 		}
-		inline bool IsOutOfBounds(size_t nPosition, size_t nCountOfChars)
+		inline bool IsOutOfBounds(size_t nPosition, size_t nCountOfChars) const noexcept
 		{
 			return nPosition > size() || nCountOfChars == 0 || 
 				nCountOfChars > size();
