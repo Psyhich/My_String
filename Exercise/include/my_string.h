@@ -90,6 +90,10 @@ namespace MyStructs
 		}
 
 		std::optional<int> ToInt() const noexcept;
+		static CMyString FromInt(int iToConvert) noexcept;
+
+		std::optional<double> ToDouble() const noexcept;
+		static CMyString FromDouble(double iToConvert) noexcept;
 
 		CMyString& operator=(const char* cpcCharsSequence);
 		CMyString operator+(const CMyString& cStringToAdd) const;

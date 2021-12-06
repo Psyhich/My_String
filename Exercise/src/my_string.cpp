@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <new>
 #include <iostream>
+#include <cmath>
 
 #include "my_string.h"
 /*
@@ -391,6 +392,9 @@ std::optional<int> MyStructs::CMyString::ToInt() const noexcept
 		if(ciCurrentChar >= 48 && ciCurrentChar <= 57)
 		{
 			iConstructedNumber += iCurrentPower  * (ciCurrentChar - 48);
+		} else if(ciCurrentChar == '-') 
+		{
+			iConstructedNumber *= -1;
 		} else 
 		{
 			return std::nullopt;
@@ -400,6 +404,97 @@ std::optional<int> MyStructs::CMyString::ToInt() const noexcept
 
 	return iConstructedNumber;
 }
+
+MyStructs::CMyString MyStructs::CMyString::FromInt(int iToConvert) noexcept
+{
+	// Counting number of radixes
+	size_t nRadixCount = 0;
+	int iNumber = iToConvert;
+	while(iNumber)
+	{
+		iNumber /= 10;
+		++nRadixCount;
+	}
+
+	CMyString newString;
+	// Taking in mind '\0' and '-' sign if number is negative
+	newString.TryToAllocate(nRadixCount + 1 + (iToConvert < 0));
+
+	iNumber = iToConvert;
+	for(size_t nCurrentRadix = 0; nCurrentRadix < nRadixCount; nCurrentRadix++)
+	{
+		newString[nCurrentRadix] = iNumber % 10 + 48;
+		iNumber /= 10;
+	}
+
+	if(iToConvert < 0)
+	{
+		newString[newString.size() - 2] = '-';
+	}
+	newString[newString.size() - 1] = '\n';
+
+	return newString;
+}
+
+std::optional<double> MyStructs::CMyString::ToDouble() const noexcept
+{
+	if(m_szData == nullptr || size() <= 1)
+	{
+		return std::nullopt;
+	}
+
+	size_t nDotPos = size() - 1;
+	bool bIsFoundDot = false;
+	// Looking for dot to know how much float radixes we have
+	const bool bIsNegative = m_szData[0] == '-';
+	for(size_t nIndex = bIsNegative; nIndex < size() - 1; nIndex++)
+	{
+		const char ciCurrentChar = m_szData[nIndex];
+		if (ciCurrentChar == '.' && !bIsFoundDot) 
+		{
+			nDotPos = nIndex; // I won't break, because I still need to check for errors
+			bIsFoundDot = true;
+		} else if(ciCurrentChar < '0' || ciCurrentChar > '9')
+		{
+			return std::nullopt;
+		}
+	}
+
+	double dNewDoubleVal = 0;
+	double lRadixModifier = 1;
+	for(size_t nIndex = 1 + bIsNegative; nIndex < nDotPos; nIndex++)
+	{
+		lRadixModifier *= 10.0;
+	}
+
+	if(nDotPos == 0) // Check for situations when we have ".<digits>"
+	{
+		lRadixModifier = 0.1;
+	}
+
+	for(size_t nIndex = bIsNegative; nIndex < size() - 1; nIndex++)
+	{
+		if(m_szData[nIndex] != '.')
+		{
+			// Jumping to next value because we don't need to divide by 0
+			if(m_szData[nIndex] != '0')
+			{
+				int iParsedNumber = m_szData[nIndex] - (int)'0';
+				dNewDoubleVal += iParsedNumber * lRadixModifier;
+			}
+			lRadixModifier /= 10.0;
+		}
+	}
+
+	if(bIsNegative)
+	{
+		dNewDoubleVal *= -1;
+	}
+
+
+	return dNewDoubleVal;
+}
+
 
 MyStructs::CMyString& MyStructs::CMyString::operator=(const char* cpszCharsSequence)
 {

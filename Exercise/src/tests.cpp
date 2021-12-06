@@ -328,6 +328,33 @@ TEST(CMyStringTest, ToIntTest)
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 }
 
+TEST(CMyStringTest, ToDoubleTest)
+{
+	MyStructs::CMyString myNewDoubleString{"1.0987"};
+	double dRealValue = 1.0987;
+	ASSERT_DOUBLE_EQ(*myNewDoubleString.ToDouble(), dRealValue);
+
+	myNewDoubleString = "987";
+	dRealValue = 987;
+	ASSERT_DOUBLE_EQ(*myNewDoubleString.ToDouble(), dRealValue);
+
+	myNewDoubleString = "1.000001";
+	dRealValue = 1.000001;
+	ASSERT_DOUBLE_EQ(*myNewDoubleString.ToDouble(), dRealValue);
+
+	myNewDoubleString = "901283.6666";
+	dRealValue = 901283.6666;
+	ASSERT_DOUBLE_EQ(*myNewDoubleString.ToDouble(), dRealValue);
+
+	myNewDoubleString = ".6666";
+	dRealValue = 0.6666;
+	ASSERT_DOUBLE_EQ(*myNewDoubleString.ToDouble(), dRealValue);
+
+	myNewDoubleString = "-45.78";
+	dRealValue = -45.78;
+	ASSERT_DOUBLE_EQ(*myNewDoubleString.ToDouble(), dRealValue);
+}
+
 // ------------------------
 // |   Exceptions tests	  |
 // ------------------------
@@ -488,4 +515,19 @@ TEST(CMyStringFailTests, LowerCaseFailTest)
 
 	mainString.ToLowerCase(0, 0);
 	ASSERT_STREQ(mainString.data(), cszMainString);
+}
+
+TEST(CMyStringFailTests, ToDoubleFailTest)
+{
+	MyStructs::CMyString myNewDoubleString = "This is fully not a number";
+	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
+
+	myNewDoubleString = "0.-45";
+	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
+
+	myNewDoubleString = "0..45";
+	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
+
+	myNewDoubleString = "0.45.";
+	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
 }
