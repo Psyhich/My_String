@@ -6,7 +6,7 @@
 #define TEST_DATA_LENGTH 17
 #define SECOND_TEST_DATA_LENGTH 19
 
-class CMyStringFixture : public ::testing::Test
+class CMyStringBaseFunctionalityFixture : public ::testing::Test
 {
 protected:
 	MyStructs::CMyString myString;
@@ -26,18 +26,18 @@ public:
 	}
 };
 
-// ------------------------
-// |  Functionality tests |
-// ------------------------
+// -----------------------------
+// |  Base functionality tests |
+// -----------------------------
 
-TEST_F(CMyStringFixture, DataCorrectnesTest) 
+TEST_F(CMyStringBaseFunctionalityFixture, DataCorrectnesTest) 
 {
 	ASSERT_EQ(nTestDataLength, myString.size());
 	ASSERT_STREQ(szTestData, myString.data());
 	ASSERT_EQ(szTestData[nTestDataLength - 1], '\0');
 }
 
-TEST_F(CMyStringFixture, DataCopyTest)
+TEST_F(CMyStringBaseFunctionalityFixture, DataCopyTest)
 {
 	MyStructs::CMyString copiedString{myString};
 	ASSERT_EQ(myString.size(), copiedString.size());
@@ -52,7 +52,7 @@ TEST_F(CMyStringFixture, DataCopyTest)
 	ASSERT_STREQ(myString.data(), operatorCopiedChars.data());
 }
 
-TEST_F(CMyStringFixture, AdditionOperatorTest)
+TEST_F(CMyStringBaseFunctionalityFixture, AdditionOperatorTest)
 {
 	MyStructs::CMyString concatenatedString = myString + secondString; 
 	ASSERT_EQ(concatenatedString.size(), myString.size() + secondString.size() - 1);
@@ -66,7 +66,7 @@ TEST_F(CMyStringFixture, AdditionOperatorTest)
 	delete[] pszConcatenatedChars;
 }
 
-TEST_F(CMyStringFixture, InsertionTest)
+TEST_F(CMyStringBaseFunctionalityFixture, InsertionTest)
 {
 	size_t nNewSize = myString.size() + secondString.size() - 1;
 	myString.Insert(secondString, 3);
@@ -84,7 +84,7 @@ TEST_F(CMyStringFixture, InsertionTest)
 	delete[] szRightInserted;
 }
 
-TEST_F(CMyStringFixture, BeginInsertionTest)
+TEST_F(CMyStringBaseFunctionalityFixture, BeginInsertionTest)
 {
 	MyStructs::CMyString copyString = secondString + myString;
 	myString.Insert(secondString, 0);
@@ -94,7 +94,7 @@ TEST_F(CMyStringFixture, BeginInsertionTest)
 	ASSERT_STREQ(myString.data(), copyString.data());
 }
 
-TEST_F(CMyStringFixture, EndInsertionTest)
+TEST_F(CMyStringBaseFunctionalityFixture, EndInsertionTest)
 {
 	// Testing this with append function because it's already tested
 	MyStructs::CMyString copyString = myString + secondString;
@@ -106,7 +106,7 @@ TEST_F(CMyStringFixture, EndInsertionTest)
 	ASSERT_STREQ(myString.data(), copyString.data());
 }
 
-TEST_F(CMyStringFixture, PartialInsertionTest)
+TEST_F(CMyStringBaseFunctionalityFixture, PartialInsertionTest)
 {
 	MyStructs::CMyString str = myString;
 	constexpr const int ciInsertIndex = 2;
@@ -126,7 +126,72 @@ TEST_F(CMyStringFixture, PartialInsertionTest)
 
 }
 
-TEST(CMyStringTest, EqualityTest)
+TEST_F(CMyStringBaseFunctionalityFixture, NullptrConstructor)
+{
+	MyStructs::CMyString nullptrStr{nullptr};
+
+	ASSERT_EQ(nullptrStr.size(), 0);
+	ASSERT_EQ(nullptrStr.data(), nullptr);
+}
+
+TEST_F(CMyStringBaseFunctionalityFixture, NullptrAssignOperator)
+{
+	MyStructs::CMyString nullptrStr = nullptr;
+
+	ASSERT_EQ(nullptrStr.size(), 0);
+	ASSERT_EQ(nullptrStr.data(), nullptr);
+}
+
+TEST_F(CMyStringBaseFunctionalityFixture, NullptrAppends)
+{
+	MyStructs::CMyString basicString{"Hello"};
+	MyStructs::CMyString safeCopy{"Hello"};
+	MyStructs::CMyString nullptrStr = nullptr;
+
+	basicString = basicString + nullptrStr;
+
+	ASSERT_EQ(basicString.size(), safeCopy.size());
+	ASSERT_STREQ(basicString.data(), safeCopy.data());
+
+	basicString = nullptr;
+
+	basicString = basicString + nullptrStr;
+	ASSERT_EQ(basicString.size(), 0);
+	ASSERT_EQ(basicString.data(), nullptr);
+}
+
+TEST_F(CMyStringBaseFunctionalityFixture, NullptrInsert)
+{
+	MyStructs::CMyString basicString{"Hello world"};
+	MyStructs::CMyString stringCopy{basicString};
+	const size_t nSizeBefore = basicString.size();
+	basicString.Insert(nullptr, 1);
+
+	ASSERT_EQ(basicString.size(), nSizeBefore);
+	ASSERT_STREQ(basicString.data(), stringCopy.data());
+}
+
+TEST_F(CMyStringBaseFunctionalityFixture, WrongInsertionTest)
+{
+	MyStructs::CMyString basicString{"Hello world"};
+	MyStructs::CMyString stringCopy{basicString};
+	const size_t nSizeBefore = basicString.size();
+	basicString.Insert("Some string", 100);
+
+	ASSERT_EQ(basicString.size(), nSizeBefore);
+	ASSERT_STREQ(basicString.data(), stringCopy.data());
+
+	basicString.Insert("Some other string", 1, 100);
+
+	ASSERT_EQ(basicString.size(), nSizeBefore);
+	ASSERT_STREQ(basicString.data(), stringCopy.data());
+}
+
+// -----------------------------
+// |		Equality tests	   |
+// -----------------------------
+
+TEST(CMyStringEqualityTest, SuccessEqualityTest)
 {
 	MyStructs::CMyString str1 = "Hello world";
 	MyStructs::CMyString str2 = "Hello world";
@@ -148,7 +213,11 @@ TEST(CMyStringTest, EqualityTest)
 	ASSERT_EQ(str1 == str2, false);
 }
 
-TEST(CMyStringTest, DeletionTest)
+// -----------------------------
+// |		Deletion tests	   |
+// -----------------------------
+
+TEST(CMyStringDeletionTest, SuccessDeletionTest)
 {
 	//"Hello, world"
 	const char *cszFirstIteration = "He world";
@@ -168,7 +237,7 @@ TEST(CMyStringTest, DeletionTest)
 	ASSERT_EQ(strToDeleteFrom.data(), nullptr);
 }
 
-TEST(CMyStringTest, ExhaustiveDeletionTest)
+TEST(CMyStringDeletionTest, ExhaustiveDeletionTest)
 {
 	// Doing exhaustive trim
 	MyStructs::CMyString mainString = "aaaaaaaaaaaaaaaaaaaaaaaa";
@@ -186,7 +255,27 @@ TEST(CMyStringTest, ExhaustiveDeletionTest)
 	ASSERT_EQ(nCurrentCount, cnMaxCount - 1);
 }
 
-TEST(CMyStringTest, SubstringTest)
+TEST(CMyStringDeletionTest, FailDeletionTest)
+{
+	const char* szStartingString = "Hello";
+	MyStructs::CMyString startingString{szStartingString};
+
+	startingString.Delete(10, 10);
+	ASSERT_STREQ(startingString.data(), szStartingString);
+
+	startingString.Delete(0, 10);
+	ASSERT_STREQ(startingString.data(), szStartingString);
+
+	// Trying to delete null terminant
+	startingString.Delete(startingString.size() - 1, 1);
+	ASSERT_STREQ(startingString.data(), szStartingString);
+}
+
+// -----------------------------
+// |		Substring tests	   |
+// -----------------------------
+
+TEST(CMyStringSubstringTest, SuccessSubstringTest)
 {
 	const char* cszBaseString = "Hello world";
 	const char* cszSubstring = "llo wor";
@@ -197,7 +286,34 @@ TEST(CMyStringTest, SubstringTest)
 	ASSERT_STREQ(substring.data(), cszSubstring);
 }
 
-TEST(CMyStringTest, FindTest)
+TEST(CMyStringSubstringTest, FailSubstringTest)
+{
+	const char* cszBaseString = "Hello world";
+
+	MyStructs::CMyString myString{cszBaseString};
+
+	MyStructs::CMyString substring = myString.Substring(2, 0);
+	ASSERT_EQ(substring.size(), 0);
+	ASSERT_EQ(substring.data(), nullptr);
+
+	substring = myString.Substring(100, 0);
+	ASSERT_EQ(substring.size(), 0);
+	ASSERT_EQ(substring.data(), nullptr);
+
+	substring = myString.Substring(0, 100);
+	ASSERT_EQ(substring.size(), 0);
+	ASSERT_EQ(substring.data(), nullptr);
+
+	substring = myString.Substring(100, 100);
+	ASSERT_EQ(substring.size(), 0);
+	ASSERT_EQ(substring.data(), nullptr);
+}
+
+// -----------------------------
+// |		Find tests		   |
+// -----------------------------
+
+TEST(CMyStringFindTest, SuccessFindTest)
 {
 	const char *cszFirstSubstring = "Hello";
 	const char *cszSecondSubstring = "string";
@@ -227,7 +343,24 @@ TEST(CMyStringTest, FindTest)
 	ASSERT_EQ(*position, cnFoundPos);
 }
 
-TEST(CMyStringTest, TrimTest)
+TEST(CMyStringFindTest, FailFindTest)
+{
+	const char *nullString = "";
+
+	const MyStructs::CMyString stringToSearch{"Hi hi hi hi hi hi hi"};
+
+	auto nFoundPos = stringToSearch.Find(nullString);
+	ASSERT_EQ(nFoundPos, std::nullopt);
+
+	nFoundPos = stringToSearch.Find(nullptr);
+	ASSERT_EQ(nFoundPos, std::nullopt);
+}
+
+// -----------------------------
+// |		Trim tests		   |
+// -----------------------------
+
+TEST(CMyStringTrimTest, SuccessTrimTest)
 {
 	// Adding 1 to size because strlen excludes '\0'
 	const char *cszFirstResult = " test, bbbbb other test, cccccc lul";
@@ -252,7 +385,7 @@ TEST(CMyStringTest, TrimTest)
 	ASSERT_STREQ(trimmed.data(), cszThirdResult);
 }
 
-TEST(CMyStringTest, ExhaustiveTrimTest)
+TEST(CMyStringTrimTest, ExhaustiveTrimTest)
 {
 	// Doing exhaustive trim
 	MyStructs::CMyString mainString = "aaaaaaaaaaaaaaaaaaaaaaaa";
@@ -263,7 +396,26 @@ TEST(CMyStringTest, ExhaustiveTrimTest)
 	ASSERT_STREQ(trimmed.data(), nullptr);
 }
 
-TEST(CMyStringTest, ToUpperCaseTest)
+TEST(CMyStringTrimTest, FailTrimTests)
+{
+	const char *cszMainString = "My main test string that would be tested by tests";
+	MyStructs::CMyString mainString{cszMainString};
+
+	auto trimmed = mainString.Trim(0, 0);
+	ASSERT_STREQ(trimmed.data(), nullptr);
+
+	trimmed = mainString.Trim(1000, 1);
+	ASSERT_STREQ(trimmed.data(), nullptr);
+
+	trimmed = mainString.Trim(1, 1000);
+	ASSERT_STREQ(trimmed.data(), nullptr);
+}
+
+// -----------------------------
+// |	ToUpperCase tests	   |
+// -----------------------------
+
+TEST(CMyStringToUpperCaseTest, SuccessToUpperCaseTest)
 {
 	const char *cszStartVariant = "hia world"; 
 	const char *cszRightResult = "HIA WORLD";
@@ -281,10 +433,28 @@ TEST(CMyStringTest, ToUpperCaseTest)
 
 	mainString.ToUpperCase(6, 8);
 	ASSERT_STREQ(mainString.data(), cszThirdRightResult);
-
 }
 
-TEST(CMyStringTest, ToLowerCaseTest)
+TEST(CMyStringToUpperCaseTest, FailUpperCaseTest)
+{
+	const char *cszMainString = "Some trial string";
+	MyStructs::CMyString mainString{cszMainString};
+
+	mainString.ToUpperCase(40, 1);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.ToUpperCase(0, 100);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.ToUpperCase(0, 0);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+}
+
+// -----------------------------
+// |	ToLowerCase tests	   |
+// -----------------------------
+
+TEST(CMyStringToLowerCaseTest, SuccessToLowerCaseTest)
 {
 	const char *cszStartVariant = "HIA WORLD"; 
 	const char *cszRightResult = "hia world";
@@ -305,7 +475,26 @@ TEST(CMyStringTest, ToLowerCaseTest)
 
 }
 
-TEST(CMyStringTest, ToIntTest)
+TEST(CMyStringToLowerCaseTest, FailLowerCaseTest)
+{
+	const char *cszMainString = "Some trial string";
+	MyStructs::CMyString mainString{cszMainString};
+
+	mainString.ToLowerCase(40, 1);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.ToLowerCase(0, 100);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+
+	mainString.ToLowerCase(0, 0);
+	ASSERT_STREQ(mainString.data(), cszMainString);
+}
+
+// -----------------------------
+// |		ToInt tests		   |
+// -----------------------------
+
+TEST(CMyStringToIntTest, SuccessToIntTest)
 {
 	MyStructs::CMyString numberString{"100"};
 	std::optional<int> parsedValue{atoi(numberString.data())};
@@ -314,21 +503,30 @@ TEST(CMyStringTest, ToIntTest)
 	numberString = "2394";
 	parsedValue = 2394;
 	ASSERT_EQ(parsedValue, numberString.ToInt());
+}
 
-	parsedValue = std::nullopt;
-	numberString = "This is not int";
+TEST(CMyStringToIntTest, FailToIntTest)
+{
+	MyStructs::CMyString numberString = "This is not int";
+	std::optional<int> parsedValue = std::nullopt;
+
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 
-	parsedValue = std::nullopt;
 	numberString = "22.8";
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 
-	parsedValue = std::nullopt;
+	numberString = "";
+	ASSERT_EQ(parsedValue, numberString.ToInt());
+
 	numberString = nullptr;
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 }
 
-TEST(CMyStringTest, ToDoubleTest)
+// -----------------------------
+// |		ToDouble tests	   |
+// -----------------------------
+
+TEST(CMyStringToDoubleTest, SuccessToDoubleTest)
 {
 	MyStructs::CMyString myNewDoubleString{"1.0987"};
 	double dRealValue = 1.0987;
@@ -355,169 +553,7 @@ TEST(CMyStringTest, ToDoubleTest)
 	ASSERT_DOUBLE_EQ(*myNewDoubleString.ToDouble(), dRealValue);
 }
 
-// ------------------------
-// |   Exceptions tests	  |
-// ------------------------
-
-TEST(CMyStringFailTests, NullptrConstructor)
-{
-	MyStructs::CMyString nullptrStr{nullptr};
-
-	ASSERT_EQ(nullptrStr.size(), 0);
-	ASSERT_EQ(nullptrStr.data(), nullptr);
-}
-
-TEST(CMyStringFailTests, NullptrAssignOperator)
-{
-	MyStructs::CMyString nullptrStr = nullptr;
-
-	ASSERT_EQ(nullptrStr.size(), 0);
-	ASSERT_EQ(nullptrStr.data(), nullptr);
-}
-
-TEST(CMyStringFailTests, NullptrAppends)
-{
-	MyStructs::CMyString basicString{"Hello"};
-	MyStructs::CMyString safeCopy{"Hello"};
-	MyStructs::CMyString nullptrStr = nullptr;
-
-	basicString = basicString + nullptrStr;
-
-	ASSERT_EQ(basicString.size(), safeCopy.size());
-	ASSERT_STREQ(basicString.data(), safeCopy.data());
-
-	basicString = nullptr;
-
-	basicString = basicString + nullptrStr;
-	ASSERT_EQ(basicString.size(), 0);
-	ASSERT_EQ(basicString.data(), nullptr);
-}
-
-TEST(CMyStringFailTests, NullptrInsert)
-{
-	MyStructs::CMyString basicString{"Hello world"};
-	MyStructs::CMyString stringCopy{basicString};
-	const size_t nSizeBefore = basicString.size();
-	basicString.Insert(nullptr, 1);
-
-	ASSERT_EQ(basicString.size(), nSizeBefore);
-	ASSERT_STREQ(basicString.data(), stringCopy.data());
-}
-
-TEST(CMyStringFailTests, WrongInsertionTest)
-{
-	MyStructs::CMyString basicString{"Hello world"};
-	MyStructs::CMyString stringCopy{basicString};
-	const size_t nSizeBefore = basicString.size();
-	basicString.Insert("Some string", 100);
-
-	ASSERT_EQ(basicString.size(), nSizeBefore);
-	ASSERT_STREQ(basicString.data(), stringCopy.data());
-
-	basicString.Insert("Some other string", 1, 100);
-
-	ASSERT_EQ(basicString.size(), nSizeBefore);
-	ASSERT_STREQ(basicString.data(), stringCopy.data());
-}
-
-TEST(CMyStringFailTests, DeletionFailTest)
-{
-	const char* szStartingString = "Hello";
-	MyStructs::CMyString startingString{szStartingString};
-
-	startingString.Delete(10, 10);
-	ASSERT_STREQ(startingString.data(), szStartingString);
-
-	startingString.Delete(0, 10);
-	ASSERT_STREQ(startingString.data(), szStartingString);
-
-	// Trying to delete null terminant
-	startingString.Delete(startingString.size() - 1, 1);
-	ASSERT_STREQ(startingString.data(), szStartingString);
-}
-
-TEST(CMyStringFailTests, SubstringFailTest)
-{
-	const char* cszBaseString = "Hello world";
-
-	MyStructs::CMyString myString{cszBaseString};
-
-	MyStructs::CMyString substring = myString.Substring(2, 0);
-	ASSERT_EQ(substring.size(), 0);
-	ASSERT_EQ(substring.data(), nullptr);
-
-	substring = myString.Substring(100, 0);
-	ASSERT_EQ(substring.size(), 0);
-	ASSERT_EQ(substring.data(), nullptr);
-
-	substring = myString.Substring(0, 100);
-	ASSERT_EQ(substring.size(), 0);
-	ASSERT_EQ(substring.data(), nullptr);
-
-	substring = myString.Substring(100, 100);
-	ASSERT_EQ(substring.size(), 0);
-	ASSERT_EQ(substring.data(), nullptr);
-}
-
-TEST(CMyStringFailTests, FindFailTest)
-{
-	const char *nullString = "";
-
-	const MyStructs::CMyString stringToSearch{"Hi hi hi hi hi hi hi"};
-
-	auto nFoundPos = stringToSearch.Find(nullString);
-	ASSERT_EQ(nFoundPos, std::nullopt);
-
-	nFoundPos = stringToSearch.Find(nullptr);
-	ASSERT_EQ(nFoundPos, std::nullopt);
-}
-
-TEST(CMyStringFailTests, TrimFailTests)
-{
-	const char *cszMainString = "My main test string that would be tested by tests";
-	MyStructs::CMyString mainString{cszMainString};
-
-	auto trimmed = mainString.Trim(0, 0);
-	ASSERT_STREQ(trimmed.data(), nullptr);
-
-	trimmed = mainString.Trim(1000, 1);
-	ASSERT_STREQ(trimmed.data(), nullptr);
-
-	trimmed = mainString.Trim(1, 1000);
-	ASSERT_STREQ(trimmed.data(), nullptr);
-}
-
-TEST(CMyStringFailTests, UpperCaseFailTest)
-{
-	const char *cszMainString = "Some trial string";
-	MyStructs::CMyString mainString{cszMainString};
-
-	mainString.ToUpperCase(40, 1);
-	ASSERT_STREQ(mainString.data(), cszMainString);
-
-	mainString.ToUpperCase(0, 100);
-	ASSERT_STREQ(mainString.data(), cszMainString);
-
-	mainString.ToUpperCase(0, 0);
-	ASSERT_STREQ(mainString.data(), cszMainString);
-}
-
-TEST(CMyStringFailTests, LowerCaseFailTest)
-{
-	const char *cszMainString = "Some trial string";
-	MyStructs::CMyString mainString{cszMainString};
-
-	mainString.ToLowerCase(40, 1);
-	ASSERT_STREQ(mainString.data(), cszMainString);
-
-	mainString.ToLowerCase(0, 100);
-	ASSERT_STREQ(mainString.data(), cszMainString);
-
-	mainString.ToLowerCase(0, 0);
-	ASSERT_STREQ(mainString.data(), cszMainString);
-}
-
-TEST(CMyStringFailTests, ToDoubleFailTest)
+TEST(CMyStringToDoubleTest, FailToDoubleTest)
 {
 	MyStructs::CMyString myNewDoubleString = "This is fully not a number";
 	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
@@ -531,3 +567,4 @@ TEST(CMyStringFailTests, ToDoubleFailTest)
 	myNewDoubleString = "0.45.";
 	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
 }
+
