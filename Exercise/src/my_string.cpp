@@ -8,25 +8,27 @@
 
 char MyStructs::CMyString::ToLowerCase(char chCharToTranslate)
 {
+	constexpr const int ciACharValue = 32;
 	if(chCharToTranslate >= 'A' && chCharToTranslate < 'Z')
 	{
-		return chCharToTranslate + 32;
+		return chCharToTranslate + ciACharValue;
 	}
 	return chCharToTranslate;
 }
 
 char MyStructs::CMyString::ToUpperCase(char chCharToTranslate)
 {
+	constexpr const int ciACharValue = 32;
 	if(chCharToTranslate >= 'a' && chCharToTranslate <= 'z')
 	{
-		return chCharToTranslate - 32;
+		return chCharToTranslate - ciACharValue;
 	}
 	return chCharToTranslate;
 }
 
 bool MyStructs::CMyString::CheckEqualityCaseInsensitive(const char* cszFirstString, const char *cszSecondString, size_t nLengthToCheck)
 {
-	for(size_t nIndex = 0; nIndex < nLengthToCheck; nIndex++)
+	for(size_t nIndex = 0; nIndex <= nLengthToCheck; nIndex++)
 	{
 		if(ToLowerCase(cszFirstString[nIndex]) != ToLowerCase(cszSecondString[nIndex]))
 		{
@@ -38,7 +40,7 @@ bool MyStructs::CMyString::CheckEqualityCaseInsensitive(const char* cszFirstStri
 
 bool MyStructs::CMyString::CheckEquality(const char* cszFirstString, const char *cszSecondString, size_t nLengthToCheck)
 {
-	for(size_t nIndex = 0; nIndex < nLengthToCheck; nIndex++)
+	for(size_t nIndex = 0; nIndex <= nLengthToCheck; nIndex++)
 	{
 		if(cszFirstString[nIndex] != cszSecondString[nIndex])
 		{
@@ -255,6 +257,7 @@ void MyStructs::CMyString::Delete(size_t nPosition, size_t nCharactersCount) noe
 	
 	size_t nOldStringPosition = 0;
 	size_t nNewStringPosition = 0;
+
 
 	// Moving to cnOldSize - 2, to manualy add '\0' in the end in case we deleted it
 	while(nOldStringPosition < cnOldSize - 1) 
@@ -489,7 +492,7 @@ bool MyStructs::CMyString::Compare(
 		printf("Given range is invalid!\n");
 		return false;
 	}
-
+	
 	// Subtracting to make it as length value, not the position(because we start from 0)
 	if(nStartPos == 0)
 	{
@@ -524,10 +527,12 @@ bool MyStructs::CMyString::Compare(
 	
 	if(bIsCaseSensitive)
 	{
-		return CheckEquality(data() + nStartPos, cszStringToCompare, nLength);
+		return CheckEquality(
+			data() + nStartPos, cszStringToCompare, nLength);
 	} else 
 	{
-		return CheckEqualityCaseInsensitive(data() + nStartPos, cszStringToCompare, nLength);
+		return CheckEqualityCaseInsensitive(
+			data() + nStartPos, cszStringToCompare, nLength);
 	}
 }
 
@@ -563,7 +568,11 @@ MyStructs::CMyString MyStructs::CMyString::Replace(
 
 	if(nPos + nLength <= size())
 	{
-		--nLength; // Minusing one to exclude terminant from cszStrToInput
+		if(nLength == cStrToInput.size())
+		{
+			// Minusing one to exclude terminant from cszStrToInput
+			--nLength;
+		}
 		newString.m_nSize = size();
 	} else 
 	{
@@ -596,7 +605,11 @@ MyStructs::CMyString MyStructs::CMyString::Replace(
 	
 	if(nPos + nLength <= size())
 	{
-		--nLength; // Minusing one to exclude terminant from cszStrToInput
+		if(nLength == cnStrLen)
+		{
+			// Minusing one to exclude terminant from cszStrToInput
+			--nLength;
+		}
 		newString.m_nSize = size();
 	} else 
 	{
@@ -810,7 +823,7 @@ MyStructs::CMyString& MyStructs::CMyString::operator=(const char* cpszCharsSeque
 	ReinitializeAndCopy(cpszCharsSequence, nNewSize);
 	return *this;
 }
-MyStructs::CMyString MyStructs::CMyString::operator+(const CMyString& cStringToAdd) const
+MyStructs::CMyString MyStructs::CMyString::operator+(const CMyString& cStringToAdd) const noexcept
 {
 	CMyString newString = this->data();
 	newString.AppendToString(cStringToAdd.data());

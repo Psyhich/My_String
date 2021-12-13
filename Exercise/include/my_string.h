@@ -8,9 +8,8 @@ namespace MyStructs
 {
 	/*
 	* STL like class for storing and using zero terminated string
-	* All specified ranges will exclude last value and include the first one
+	* All specified ranges will include the first value and the last one
 	*/
-	// TODO: fix a giant bug when you set start pos to 0 the length should be at 1 more
 	class CMyString 
 	{ 
 	public:
@@ -107,7 +106,7 @@ namespace MyStructs
 		CMyString Replace(const char* cszStrToInput, size_t nPos, size_t nLength) const noexcept;
 
 		CMyString& operator=(const char* cpcCharsSequence);
-		CMyString operator+(const CMyString& cStringToAdd) const;
+		CMyString operator+(const CMyString& cStringToAdd) const noexcept;
 		inline bool operator==(const CMyString& cStringToCompare) const noexcept 
 		{
 			return Compare(cStringToCompare);

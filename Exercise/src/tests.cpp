@@ -87,11 +87,25 @@ TEST_F(CMyStringBaseFunctionalityFixture, InsertionTest)
 TEST_F(CMyStringBaseFunctionalityFixture, BeginInsertionTest)
 {
 	MyStructs::CMyString copyString = secondString + myString;
-	myString.Insert(secondString, 0);
+	MyStructs::CMyString insertedString = myString;
 
-	ASSERT_EQ(copyString.size(), myString.size());
+	insertedString.Insert(secondString, 0);
+	ASSERT_EQ(copyString.size(), insertedString.size());
+	ASSERT_STREQ(insertedString.data(), copyString.data());
 
-	ASSERT_STREQ(myString.data(), copyString.data());
+	insertedString = myString;
+	insertedString.Insert(secondString, 0, 3);
+	const size_t cnNewSize = myString.size() + 3;
+	char *szRightInserted = new char[cnNewSize];
+	std::strncpy(szRightInserted, secondString.data(), 3);
+	szRightInserted[3] = '\0';
+	std::strcat(szRightInserted, myString.data());
+
+	ASSERT_EQ(cnNewSize, insertedString.size());
+	ASSERT_STREQ(insertedString.data(), szRightInserted);
+
+	delete[] szRightInserted;
+	
 }
 
 TEST_F(CMyStringBaseFunctionalityFixture, EndInsertionTest)
@@ -102,7 +116,6 @@ TEST_F(CMyStringBaseFunctionalityFixture, EndInsertionTest)
 	myString.Insert(secondString, myString.size() - 1);
 
 	ASSERT_EQ(copyString.size(), myString.size());
-
 	ASSERT_STREQ(myString.data(), copyString.data());
 }
 
@@ -219,20 +232,20 @@ TEST(CMyStringTest, SuccessEqualityTest)
 
 TEST(CMyStringTest, SuccessDeletionTest)
 {
-	//"Hello, world"
 	const char *cszFirstIteration = "He world";
 	const char *cszSecondIteration = "world";
-	MyStructs::CMyString strToDeleteFrom{"Hello, world"};
+	const char *cszStartingString = "Hello, world";
+	MyStructs::CMyString strToDeleteFrom{cszStartingString};
 
-	//"He world"
 	strToDeleteFrom.Delete(2, 4);
 	ASSERT_STREQ(strToDeleteFrom.data(), cszFirstIteration);
 
-	//"world"
-	strToDeleteFrom.Delete(0, 3);
+	strToDeleteFrom = cszStartingString;
+	strToDeleteFrom.Delete(0, 7);
 	ASSERT_STREQ(strToDeleteFrom.data(), cszSecondIteration);
 
-	//nullptr
+	// nullptr
+	strToDeleteFrom = cszStartingString;
 	strToDeleteFrom.Delete(0, strToDeleteFrom.size() - 1);
 	ASSERT_EQ(strToDeleteFrom.data(), nullptr);
 }
@@ -647,8 +660,8 @@ TEST(CMyStringTest, SuccessCharArrayReplaceTest)
 
 	const MyStructs::CMyString cFirstReplaceResult = "somother stringds";
 	const MyStructs::CMyString cSecondReplaceResult = "other stringwords";
-	const MyStructs::CMyString cThirdReplaceResult = "somothandom words";
-	const MyStructs::CMyString cFourthReplaceResult = "some random woother s";
+	const MyStructs::CMyString cThirdReplaceResult = "somothendom words";
+	const MyStructs::CMyString cFourthReplaceResult = "some random wother s";
 
 	const MyStructs::CMyString startingString = "some random words";
 	
@@ -678,10 +691,10 @@ TEST(CMyStringTest, SuccessCharArrayReplaceTest)
 	ASSERT_STREQ(replacedString.data(), cThirdReplaceResult.data());
 
 
-	replacedString = startingString.Replace(cFirstStringToReplaceWith.data(), 14, 7);
+	replacedString = startingString.Replace(cFirstStringToReplaceWith.data(), 13, 7);
 	ASSERT_EQ(replacedString.size(), cFourthReplaceResult.size());
 	ASSERT_STREQ(replacedString.data(), cFourthReplaceResult.data());
-	replacedString = startingString.Replace(cFirstStringToReplaceWith, 14, 7);
+	replacedString = startingString.Replace(cFirstStringToReplaceWith, 13, 7);
 	ASSERT_EQ(replacedString.size(), cFourthReplaceResult.size());
 	ASSERT_STREQ(replacedString.data(), cFourthReplaceResult.data());
 }
@@ -759,17 +772,17 @@ TEST(CMyString, SuccessCompareTest)
 	ASSERT_TRUE(cThirdStringToCompare.Compare(cThirdStringToCompare));
 	ASSERT_TRUE(cThirdStringToCompare.Compare(cThirdStringToCompare.data()));
 
-	ASSERT_TRUE(cFifthStringToCompare.Compare(cStartString, 54, 11));
-	ASSERT_TRUE(cFifthStringToCompare.Compare(cStartString.data(), 54, 11));
+	ASSERT_TRUE(cFifthStringToCompare.Compare(cStartString, 54, 10));
+	ASSERT_TRUE(cFifthStringToCompare.Compare(cStartString.data(), 54, 10));
 
-	ASSERT_FALSE(cFifthStringToCompare.Compare(cSecondStringToCompare, 54, 11));
-	ASSERT_FALSE(cFifthStringToCompare.Compare(cSecondStringToCompare.data(), 54, 11));
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cSecondStringToCompare, 54, 10));
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cSecondStringToCompare.data(), 54, 10));
 
-	ASSERT_FALSE(cFifthStringToCompare.Compare(cThirdStringToCompare, 54, 11));
-	ASSERT_FALSE(cFifthStringToCompare.Compare(cThirdStringToCompare.data(), 54, 11));
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cThirdStringToCompare, 54, 10));
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cThirdStringToCompare.data(), 54, 10));
 
-	ASSERT_TRUE(cFifthStringToCompare.Compare(cFourthStringToCompare, 0, 5));
-	ASSERT_TRUE(cFifthStringToCompare.Compare(cFourthStringToCompare.data(), 0, 5));
+	ASSERT_TRUE(cFifthStringToCompare.Compare(cFourthStringToCompare, 0, 4));
+	ASSERT_TRUE(cFifthStringToCompare.Compare(cFourthStringToCompare.data(), 0, 4));
 }
 
 TEST(CMyStringTest, FailCompareTest)
