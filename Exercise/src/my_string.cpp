@@ -435,7 +435,7 @@ MyStructs::CMyString MyStructs::CMyString::Reverse() const noexcept
 }
 
 
-bool MyStructs::CMyString::Compare(const CMyString& cStringToCompare) const noexcept
+bool MyStructs::CMyString::Compare(const CMyString& cStringToCompare, bool bIsCaseSensitive) const noexcept
 {
 	if(size() != cStringToCompare.size())
 	{
@@ -447,11 +447,17 @@ bool MyStructs::CMyString::Compare(const CMyString& cStringToCompare) const noex
 		return true;
 	}
 	
-	return CheckEquality(data(), cStringToCompare.data(), size());
+	if(bIsCaseSensitive)
+	{
+		return CheckEquality(data(), cStringToCompare.data(), size());
+	} else 
+	{
+		return CheckEqualityCaseInsensitive(data(), cStringToCompare.data(), size());
+	}
 }
 
 
-bool MyStructs::CMyString::Compare(const char* cszStringToCompare) const noexcept
+bool MyStructs::CMyString::Compare(const char* cszStringToCompare, bool bIsCaseSensitive) const noexcept
 {
 	if(m_szData == nullptr && cszStringToCompare == nullptr)
 	{
@@ -464,31 +470,65 @@ bool MyStructs::CMyString::Compare(const char* cszStringToCompare) const noexcep
 		return false;
 	}
 
-	return CheckEquality(data(), cszStringToCompare, size());
+	if(bIsCaseSensitive)
+	{
+		return CheckEquality(data(), cszStringToCompare, size());
+	} else 
+	{
+		return CheckEqualityCaseInsensitive(data(), cszStringToCompare, size());
+	}
 }
 
-bool MyStructs::CMyString::Compare(const CMyString& cStringToCompare, size_t nStartPos, size_t nLength) const noexcept
+bool MyStructs::CMyString::Compare(
+	const CMyString& cStringToCompare, size_t nStartPos, 
+	size_t nLength, bool bIsCaseSensitive) const noexcept
 {
 
-	if(IsOutOfBounds(nStartPos, nLength) && cStringToCompare.IsOutOfBounds(0, nLength))
+	if(IsOutOfBounds(nStartPos, nLength) || cStringToCompare.IsOutOfBounds(0, nLength))
 	{
 		printf("Given range is invalid!\n");
 		return false;
 	}
 
-	return CheckEquality(data() + nStartPos, cStringToCompare.data(), nLength);
+	// Subtracting to make it as length value, not the position(because we start from 0)
+	if(nStartPos == 0)
+	{
+		--nLength;
+	}
+
+	if(bIsCaseSensitive)
+	{
+		return CheckEquality(data() + nStartPos, cStringToCompare.data(), nLength);
+	} else 
+	{
+		return CheckEqualityCaseInsensitive(data() + nStartPos, cStringToCompare.data(), nLength);
+	}
 }
-bool MyStructs::CMyString::Compare(const char* cszStringToCompare, size_t nStartPos, size_t nLength) const noexcept
+bool MyStructs::CMyString::Compare(
+	const char* cszStringToCompare, size_t nStartPos, 
+	size_t nLength, bool bIsCaseSensitive) const noexcept
 {
 	size_t nSecondStringLength = GetStringLength(cszStringToCompare);
 
-	if(IsOutOfBounds(nStartPos, nLength) && nLength > nSecondStringLength)
+	if(IsOutOfBounds(nStartPos, nLength) || nLength > nSecondStringLength)
 	{
 		printf("Given range is invalid!\n");
 		return false;
 	}
 
-	return CheckEquality(data() + nStartPos, cszStringToCompare, nLength);
+	// Subtracting to make it as length value, not the position(because we start from 0)
+	if(nStartPos == 0)
+	{
+		--nLength;
+	}
+	
+	if(bIsCaseSensitive)
+	{
+		return CheckEquality(data() + nStartPos, cszStringToCompare, nLength);
+	} else 
+	{
+		return CheckEqualityCaseInsensitive(data() + nStartPos, cszStringToCompare, nLength);
+	}
 }
 
 

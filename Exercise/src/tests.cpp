@@ -640,6 +640,7 @@ TEST(CMyStringTest, FailReverseString)
 // -----------------------------
 // |		Replace tests	   |
 // -----------------------------
+
 TEST(CMyStringTest, SuccessCharArrayReplaceTest)
 {
 	const MyStructs::CMyString cFirstStringToReplaceWith = "other string";
@@ -724,4 +725,72 @@ TEST(CMyStringTest, FailReplaceTest)
 	replacedString = startingString.Replace(cStringToReplaceWith.data(), 100, 1);
 	ASSERT_EQ(replacedString.size(), 0);
 	ASSERT_STREQ(replacedString.data(), nullptr);
+}
+
+// -----------------------------
+// |		Compare tests	   |
+// -----------------------------
+
+TEST(CMyString, SuccessCompareTest)
+{
+	const MyStructs::CMyString cStartString{"some words"};
+
+	const MyStructs::CMyString cFirstStringToCompare{cStartString};
+	const MyStructs::CMyString cSecondStringToCompare{"some oords"};
+	const MyStructs::CMyString cThirdStringToCompare{nullptr};
+	const MyStructs::CMyString cFourthStringToCompare{"some"};
+	const MyStructs::CMyString cFifthStringToCompare{"some very very very looooong string with realy lot of some words"};
+
+	ASSERT_TRUE(cStartString.Compare(cFirstStringToCompare));
+	ASSERT_TRUE(cStartString.Compare(cFirstStringToCompare.data()));
+
+	ASSERT_FALSE(cStartString.Compare(cSecondStringToCompare));
+	ASSERT_FALSE(cStartString.Compare(cSecondStringToCompare.data()));
+
+	ASSERT_FALSE(cStartString.Compare(cThirdStringToCompare));
+	ASSERT_FALSE(cStartString.Compare(cThirdStringToCompare.data()));
+
+	ASSERT_FALSE(cStartString.Compare(cFourthStringToCompare));
+	ASSERT_FALSE(cStartString.Compare(cFourthStringToCompare.data()));
+
+	ASSERT_FALSE(cStartString.Compare(cFifthStringToCompare));
+	ASSERT_FALSE(cStartString.Compare(cFifthStringToCompare.data()));
+
+	ASSERT_TRUE(cThirdStringToCompare.Compare(cThirdStringToCompare));
+	ASSERT_TRUE(cThirdStringToCompare.Compare(cThirdStringToCompare.data()));
+
+	ASSERT_TRUE(cFifthStringToCompare.Compare(cStartString, 54, 11));
+	ASSERT_TRUE(cFifthStringToCompare.Compare(cStartString.data(), 54, 11));
+
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cSecondStringToCompare, 54, 11));
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cSecondStringToCompare.data(), 54, 11));
+
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cThirdStringToCompare, 54, 11));
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cThirdStringToCompare.data(), 54, 11));
+
+	ASSERT_TRUE(cFifthStringToCompare.Compare(cFourthStringToCompare, 0, 5));
+	ASSERT_TRUE(cFifthStringToCompare.Compare(cFourthStringToCompare.data(), 0, 5));
+}
+
+TEST(CMyStringTest, FailCompareTest)
+{
+	const MyStructs::CMyString cStartString{"some words"};
+
+	const MyStructs::CMyString cFirstStringToCompare{cStartString};
+	const MyStructs::CMyString cSecondStringToCompare{"some oords"};
+	const MyStructs::CMyString cThirdStringToCompare{nullptr};
+	const MyStructs::CMyString cFourthStringToCompare{"some"};
+	const MyStructs::CMyString cFifthStringToCompare{"some very very very looooong string with realy lot of some words"};
+
+	ASSERT_FALSE(cStartString.Compare(cFifthStringToCompare, 12, 10));
+	ASSERT_FALSE(cStartString.Compare(cFifthStringToCompare.data(), 12, 10));
+
+	ASSERT_FALSE(cStartString.Compare(cFifthStringToCompare, 1000, 10));
+	ASSERT_FALSE(cStartString.Compare(cFifthStringToCompare.data(), 1000, 10));
+
+	ASSERT_FALSE(cStartString.Compare(cThirdStringToCompare, 1, 9));
+	ASSERT_FALSE(cStartString.Compare(cThirdStringToCompare.data(), 1, 9));
+
+	ASSERT_FALSE(cStartString.Compare(cStartString, 0, 100));
+	ASSERT_FALSE(cStartString.Compare(cStartString.data(), 0, 100));
 }

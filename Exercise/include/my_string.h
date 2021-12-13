@@ -10,6 +10,7 @@ namespace MyStructs
 	* STL like class for storing and using zero terminated string
 	* All specified ranges will exclude last value and include the first one
 	*/
+	// TODO: fix a giant bug when you set start pos to 0 the length should be at 1 more
 	class CMyString 
 	{ 
 	public:
@@ -97,10 +98,10 @@ namespace MyStructs
 		std::optional<double> ToDouble() const noexcept;
 		static CMyString FromDouble(double iToConvert, size_t precision=3) noexcept;
 
-		bool Compare(const CMyString& cStringToCompare) const noexcept;
-		bool Compare(const char* cszStringToCompare) const noexcept;
-		bool Compare(const CMyString& cStringToCompare, size_t nStartPos, size_t nLength) const noexcept;
-		bool Compare(const char* cszStringToCompare, size_t nStartPos, size_t nLength) const noexcept;
+		bool Compare(const CMyString& cStringToCompare, bool bIsCaseSensitive=true) const noexcept;
+		bool Compare(const char* cszStringToCompare, bool bIsCaseSensitive=true) const noexcept;
+		bool Compare(const CMyString& cStringToCompare, size_t nStartPos, size_t nLength, bool bIsCaseSensitive=true) const noexcept;
+		bool Compare(const char* cszStringToCompare, size_t nStartPos, size_t nLength, bool bIsCaseSensitive=true) const noexcept;
 
 		CMyString Replace(const CMyString& cStrToInput, size_t nPos, size_t nLength) const noexcept;
 		CMyString Replace(const char* cszStrToInput, size_t nPos, size_t nLength) const noexcept;
