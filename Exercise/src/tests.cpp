@@ -191,7 +191,7 @@ TEST_F(CMyStringBaseFunctionalityFixture, WrongInsertionTest)
 // |		Equality tests	   |
 // -----------------------------
 
-TEST(CMyStringEqualityTest, SuccessEqualityTest)
+TEST(CMyStringTest, SuccessEqualityTest)
 {
 	MyStructs::CMyString str1 = "Hello world";
 	MyStructs::CMyString str2 = "Hello world";
@@ -217,7 +217,7 @@ TEST(CMyStringEqualityTest, SuccessEqualityTest)
 // |		Deletion tests	   |
 // -----------------------------
 
-TEST(CMyStringDeletionTest, SuccessDeletionTest)
+TEST(CMyStringTest, SuccessDeletionTest)
 {
 	//"Hello, world"
 	const char *cszFirstIteration = "He world";
@@ -237,7 +237,7 @@ TEST(CMyStringDeletionTest, SuccessDeletionTest)
 	ASSERT_EQ(strToDeleteFrom.data(), nullptr);
 }
 
-TEST(CMyStringDeletionTest, ExhaustiveDeletionTest)
+TEST(CMyStringTest, ExhaustiveDeletionTest)
 {
 	// Doing exhaustive trim
 	MyStructs::CMyString mainString = "aaaaaaaaaaaaaaaaaaaaaaaa";
@@ -255,7 +255,7 @@ TEST(CMyStringDeletionTest, ExhaustiveDeletionTest)
 	ASSERT_EQ(nCurrentCount, cnMaxCount - 1);
 }
 
-TEST(CMyStringDeletionTest, FailDeletionTest)
+TEST(CMyStringTest, FailDeletionTest)
 {
 	const char* szStartingString = "Hello";
 	MyStructs::CMyString startingString{szStartingString};
@@ -275,7 +275,7 @@ TEST(CMyStringDeletionTest, FailDeletionTest)
 // |		Substring tests	   |
 // -----------------------------
 
-TEST(CMyStringSubstringTest, SuccessSubstringTest)
+TEST(CMyStringTest, SuccessSubstringTest)
 {
 	const char* cszBaseString = "Hello world";
 	const char* cszSubstring = "llo wor";
@@ -286,7 +286,7 @@ TEST(CMyStringSubstringTest, SuccessSubstringTest)
 	ASSERT_STREQ(substring.data(), cszSubstring);
 }
 
-TEST(CMyStringSubstringTest, FailSubstringTest)
+TEST(CMyStringTest, FailSubstringTest)
 {
 	const char* cszBaseString = "Hello world";
 
@@ -313,7 +313,7 @@ TEST(CMyStringSubstringTest, FailSubstringTest)
 // |		Find tests		   |
 // -----------------------------
 
-TEST(CMyStringFindTest, SuccessFindTest)
+TEST(CMyStringTest, SuccessFindTest)
 {
 	const char *cszFirstSubstring = "Hello";
 	const char *cszSecondSubstring = "string";
@@ -343,7 +343,7 @@ TEST(CMyStringFindTest, SuccessFindTest)
 	ASSERT_EQ(*position, cnFoundPos);
 }
 
-TEST(CMyStringFindTest, FailFindTest)
+TEST(CMyStringTest, FailFindTest)
 {
 	const char *nullString = "";
 
@@ -360,7 +360,7 @@ TEST(CMyStringFindTest, FailFindTest)
 // |		Trim tests		   |
 // -----------------------------
 
-TEST(CMyStringTrimTest, SuccessTrimTest)
+TEST(CMyStringTest, SuccessTrimTest)
 {
 	// Adding 1 to size because strlen excludes '\0'
 	const char *cszFirstResult = " test, bbbbb other test, cccccc lul";
@@ -385,7 +385,7 @@ TEST(CMyStringTrimTest, SuccessTrimTest)
 	ASSERT_STREQ(trimmed.data(), cszThirdResult);
 }
 
-TEST(CMyStringTrimTest, ExhaustiveTrimTest)
+TEST(CMyStringTest, ExhaustiveTrimTest)
 {
 	// Doing exhaustive trim
 	MyStructs::CMyString mainString = "aaaaaaaaaaaaaaaaaaaaaaaa";
@@ -396,7 +396,7 @@ TEST(CMyStringTrimTest, ExhaustiveTrimTest)
 	ASSERT_STREQ(trimmed.data(), nullptr);
 }
 
-TEST(CMyStringTrimTest, FailTrimTests)
+TEST(CMyStringTest, FailTrimTests)
 {
 	const char *cszMainString = "My main test string that would be tested by tests";
 	MyStructs::CMyString mainString{cszMainString};
@@ -415,7 +415,7 @@ TEST(CMyStringTrimTest, FailTrimTests)
 // |	ToUpperCase tests	   |
 // -----------------------------
 
-TEST(CMyStringToUpperCaseTest, SuccessToUpperCaseTest)
+TEST(CMyStringTest, SuccessToUpperCaseTest)
 {
 	const char *cszStartVariant = "hia world"; 
 	const char *cszRightResult = "HIA WORLD";
@@ -435,7 +435,7 @@ TEST(CMyStringToUpperCaseTest, SuccessToUpperCaseTest)
 	ASSERT_STREQ(mainString.data(), cszThirdRightResult);
 }
 
-TEST(CMyStringToUpperCaseTest, FailUpperCaseTest)
+TEST(CMyStringTest, FailUpperCaseTest)
 {
 	const char *cszMainString = "Some trial string";
 	MyStructs::CMyString mainString{cszMainString};
@@ -454,7 +454,7 @@ TEST(CMyStringToUpperCaseTest, FailUpperCaseTest)
 // |	ToLowerCase tests	   |
 // -----------------------------
 
-TEST(CMyStringToLowerCaseTest, SuccessToLowerCaseTest)
+TEST(CMyStringTest, SuccessToLowerCaseTest)
 {
 	const char *cszStartVariant = "HIA WORLD"; 
 	const char *cszRightResult = "hia world";
@@ -475,7 +475,7 @@ TEST(CMyStringToLowerCaseTest, SuccessToLowerCaseTest)
 
 }
 
-TEST(CMyStringToLowerCaseTest, FailLowerCaseTest)
+TEST(CMyStringTest, FailLowerCaseTest)
 {
 	const char *cszMainString = "Some trial string";
 	MyStructs::CMyString mainString{cszMainString};
@@ -494,7 +494,7 @@ TEST(CMyStringToLowerCaseTest, FailLowerCaseTest)
 // |		ToInt tests		   |
 // -----------------------------
 
-TEST(CMyStringToIntTest, SuccessToIntTest)
+TEST(CMyStringTest, SuccessToIntTest)
 {
 	MyStructs::CMyString numberString{"100"};
 	std::optional<int> parsedValue{atoi(numberString.data())};
@@ -505,7 +505,7 @@ TEST(CMyStringToIntTest, SuccessToIntTest)
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 }
 
-TEST(CMyStringToIntTest, FailToIntTest)
+TEST(CMyStringTest, FailToIntTest)
 {
 	MyStructs::CMyString numberString = "This is not int";
 	std::optional<int> parsedValue = std::nullopt;
@@ -521,12 +521,34 @@ TEST(CMyStringToIntTest, FailToIntTest)
 	numberString = nullptr;
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 }
+// -----------------------------
+// |		FromInt tests	   |
+// -----------------------------
+
+TEST(CMyStringTest, SuccessFromIntTest)
+{
+	char *szRealConverted = new char[100];
+	MyStructs::CMyString string = MyStructs::CMyString::FromInt(42);
+
+	sprintf(szRealConverted, "%d", 42);
+	ASSERT_STREQ(string.data(), szRealConverted);
+
+	string = MyStructs::CMyString::FromInt(109);
+	sprintf(szRealConverted, "%d", 109);
+	ASSERT_STREQ(string.data(), szRealConverted);
+
+	string = MyStructs::CMyString::FromInt(100000);
+	sprintf(szRealConverted, "%d", 100000);
+	ASSERT_STREQ(string.data(), szRealConverted);
+
+	delete[] szRealConverted;
+}
 
 // -----------------------------
 // |		ToDouble tests	   |
 // -----------------------------
 
-TEST(CMyStringToDoubleTest, SuccessToDoubleTest)
+TEST(CMyStringTest, SuccessToDoubleTest)
 {
 	MyStructs::CMyString myNewDoubleString{"1.0987"};
 	double dRealValue = 1.0987;
@@ -553,7 +575,7 @@ TEST(CMyStringToDoubleTest, SuccessToDoubleTest)
 	ASSERT_DOUBLE_EQ(*myNewDoubleString.ToDouble(), dRealValue);
 }
 
-TEST(CMyStringToDoubleTest, FailToDoubleTest)
+TEST(CMyStringTest, FailToDoubleTest)
 {
 	MyStructs::CMyString myNewDoubleString = "This is fully not a number";
 	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
@@ -568,3 +590,138 @@ TEST(CMyStringToDoubleTest, FailToDoubleTest)
 	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
 }
 
+// -----------------------------
+// |	FromDouble tests	   |
+// -----------------------------
+
+TEST(CMyStringTest, SuccessFromDoubleTest)
+{
+	MyStructs::CMyString parsedDouble = MyStructs::CMyString::FromDouble(2.56);
+	const char *cszFirstResult = "2.560";
+	ASSERT_STREQ(parsedDouble.data(), cszFirstResult);
+
+	parsedDouble = MyStructs::CMyString::FromDouble(123.909);
+	const char *cszSecondResult = "123.909";
+	ASSERT_STREQ(parsedDouble.data(), cszSecondResult);
+
+
+	parsedDouble = MyStructs::CMyString::FromDouble(-123.909);
+	const char *cszThirdResult = "-123.909";
+	ASSERT_STREQ(parsedDouble.data(), cszThirdResult);
+}
+
+// -----------------------------
+// |		Reverse tests	   |
+// -----------------------------
+
+TEST(CMyStringTest, SuccessRevereseString)
+{
+	MyStructs::CMyString startingString = "Hello world";
+	const char *cszReversedVersion = "dlrow olleH";
+	MyStructs::CMyString reversedString = startingString.Reverse();
+	ASSERT_STREQ(reversedString.data(), cszReversedVersion);
+
+	startingString = "Hiw ol";
+	const char *cszSecondReversedVersion = "low iH";
+	reversedString = startingString.Reverse();
+	ASSERT_STREQ(reversedString.data(), cszSecondReversedVersion);
+}
+
+TEST(CMyStringTest, FailReverseString)
+{
+	MyStructs::CMyString startingString = nullptr;
+	ASSERT_EQ(startingString, startingString.Reverse());
+
+	startingString = "a";
+	ASSERT_STREQ(startingString.data(), startingString.Reverse().data());
+}
+
+
+// -----------------------------
+// |		Replace tests	   |
+// -----------------------------
+TEST(CMyStringTest, SuccessCharArrayReplaceTest)
+{
+	const MyStructs::CMyString cFirstStringToReplaceWith = "other string";
+
+	const MyStructs::CMyString cFirstReplaceResult = "somother stringds";
+	const MyStructs::CMyString cSecondReplaceResult = "other stringwords";
+	const MyStructs::CMyString cThirdReplaceResult = "somothandom words";
+	const MyStructs::CMyString cFourthReplaceResult = "some random woother s";
+
+	const MyStructs::CMyString startingString = "some random words";
+	
+	// Running both tests on functions accepting char* and CMyString
+	MyStructs::CMyString replacedString = 
+		startingString.Replace(cFirstStringToReplaceWith.data(), 3, cFirstStringToReplaceWith.size());
+	ASSERT_EQ(replacedString.size(), cFirstReplaceResult.size());
+	ASSERT_STREQ(replacedString.data(), cFirstReplaceResult.data());
+	replacedString = startingString.Replace(cFirstStringToReplaceWith, 3, cFirstStringToReplaceWith.size());
+	ASSERT_EQ(replacedString.size(), cFirstReplaceResult.size());
+	ASSERT_STREQ(replacedString.data(), cFirstReplaceResult.data());
+
+
+	replacedString = startingString.Replace(cFirstStringToReplaceWith.data(), 0, cFirstStringToReplaceWith.size());
+	ASSERT_EQ(replacedString.size(), cSecondReplaceResult.size());
+	ASSERT_STREQ(replacedString.data(), cSecondReplaceResult.data());
+	replacedString = startingString.Replace(cFirstStringToReplaceWith, 0, cFirstStringToReplaceWith.size());
+	ASSERT_EQ(replacedString.size(), cSecondReplaceResult.size());
+	ASSERT_STREQ(replacedString.data(), cSecondReplaceResult.data());
+
+
+	replacedString = startingString.Replace(cFirstStringToReplaceWith.data(), 3, 4);
+	ASSERT_EQ(replacedString.size(), cThirdReplaceResult.size());
+	ASSERT_STREQ(replacedString.data(), cThirdReplaceResult.data());
+	replacedString = startingString.Replace(cFirstStringToReplaceWith, 3, 4);
+	ASSERT_EQ(replacedString.size(), cThirdReplaceResult.size());
+	ASSERT_STREQ(replacedString.data(), cThirdReplaceResult.data());
+
+
+	replacedString = startingString.Replace(cFirstStringToReplaceWith.data(), 14, 7);
+	ASSERT_EQ(replacedString.size(), cFourthReplaceResult.size());
+	ASSERT_STREQ(replacedString.data(), cFourthReplaceResult.data());
+	replacedString = startingString.Replace(cFirstStringToReplaceWith, 14, 7);
+	ASSERT_EQ(replacedString.size(), cFourthReplaceResult.size());
+	ASSERT_STREQ(replacedString.data(), cFourthReplaceResult.data());
+}
+TEST(CMyStringTest, FailReplaceTest)
+{
+	const MyStructs::CMyString cStringToReplaceWith = "Hello world this is some random string";
+
+	MyStructs::CMyString startingString = nullptr;
+	MyStructs::CMyString replacedString = startingString.Replace(cStringToReplaceWith, 0, 10);
+
+	ASSERT_EQ(replacedString.size(), 0);
+	ASSERT_STREQ(replacedString.data(), nullptr);
+	replacedString = startingString.Replace(cStringToReplaceWith.data(), 0, 10);
+	ASSERT_EQ(replacedString.size(), 0);
+	ASSERT_STREQ(replacedString.data(), nullptr);
+
+	replacedString = startingString.Replace(cStringToReplaceWith, 0, 10000);
+	ASSERT_EQ(replacedString.size(), 0);
+	ASSERT_STREQ(replacedString.data(), nullptr);
+	replacedString = startingString.Replace(cStringToReplaceWith.data(), 0, 10000);
+	ASSERT_EQ(replacedString.size(), 0);
+	ASSERT_STREQ(replacedString.data(), nullptr);
+
+	replacedString = startingString.Replace(cStringToReplaceWith, 0, 0);
+	ASSERT_EQ(replacedString.size(), startingString.size());
+	ASSERT_STREQ(replacedString.data(), startingString.data());
+	replacedString = startingString.Replace(cStringToReplaceWith.data(), 0, 0);
+	ASSERT_EQ(replacedString.size(), startingString.size());
+	ASSERT_STREQ(replacedString.data(), startingString.data());
+
+	replacedString = startingString.Replace(cStringToReplaceWith, 1, 0);
+	ASSERT_EQ(replacedString.size(), startingString.size());
+	ASSERT_STREQ(replacedString.data(), startingString.data());
+	replacedString = startingString.Replace(cStringToReplaceWith.data(), 1, 0);
+	ASSERT_EQ(replacedString.size(), startingString.size());
+	ASSERT_STREQ(replacedString.data(), startingString.data());
+
+	replacedString = startingString.Replace(cStringToReplaceWith, 100, 1);
+	ASSERT_EQ(replacedString.size(), 0);
+	ASSERT_STREQ(replacedString.data(), nullptr);
+	replacedString = startingString.Replace(cStringToReplaceWith.data(), 100, 1);
+	ASSERT_EQ(replacedString.size(), 0);
+	ASSERT_STREQ(replacedString.data(), nullptr);
+}

@@ -2,8 +2,52 @@
 #include <new>
 #include <iostream>
 #include <cmath>
+#include <limits>
 
 #include "my_string.h"
+
+char MyStructs::CMyString::ToLowerCase(char chCharToTranslate)
+{
+	if(chCharToTranslate >= 'A' && chCharToTranslate < 'Z')
+	{
+		return chCharToTranslate + 32;
+	}
+	return chCharToTranslate;
+}
+
+char MyStructs::CMyString::ToUpperCase(char chCharToTranslate)
+{
+	if(chCharToTranslate >= 'a' && chCharToTranslate <= 'z')
+	{
+		return chCharToTranslate - 32;
+	}
+	return chCharToTranslate;
+}
+
+bool MyStructs::CMyString::CheckEqualityCaseInsensitive(const char* cszFirstString, const char *cszSecondString, size_t nLengthToCheck)
+{
+	for(size_t nIndex = 0; nIndex < nLengthToCheck; nIndex++)
+	{
+		if(ToLowerCase(cszFirstString[nIndex]) != ToLowerCase(cszSecondString[nIndex]))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool MyStructs::CMyString::CheckEquality(const char* cszFirstString, const char *cszSecondString, size_t nLengthToCheck)
+{
+	for(size_t nIndex = 0; nIndex < nLengthToCheck; nIndex++)
+	{
+		if(cszFirstString[nIndex] != cszSecondString[nIndex])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 /*
 *	Be advised, TryToAllocate doesn't take care of releasing resources
 * */
@@ -186,6 +230,7 @@ void MyStructs::CMyString::Delete(size_t nPosition, size_t nCharactersCount) noe
 {
 	if(IsOutOfBounds(nPosition, nCharactersCount))
 	{
+		printf("Got out of bounds\n");
 		return;
 	}
 	if(nCharactersCount == size() - 1) 
@@ -238,7 +283,7 @@ MyStructs::CMyString MyStructs::CMyString::Substring(size_t nPosition, size_t nC
 		printf("Given range is out of bounds\n");
 		return substring;
 	}
-	substring.TryToAllocate(nCharactersCount);
+	substring.TryToAllocate(nCharactersCount + !IsReachedTerminator(nPosition, nCharactersCount));
 	if(substring.m_szData == nullptr)
 	{
 		printf("Failed to allocate substring\n");
@@ -250,6 +295,8 @@ MyStructs::CMyString MyStructs::CMyString::Substring(size_t nPosition, size_t nC
 	{
 		substring.m_szData[nCurrentIndex - nPosition] = m_szData[nCurrentIndex];
 	}
+
+	substring.m_szData[substring.size() - 1] = '\0';
 
 	return substring;
 }
@@ -354,10 +401,7 @@ void MyStructs::CMyString::ToUpperCase(size_t nStartPos, size_t nLasPos) noexcep
 
 	for(size_t nIndex = nStartPos; nIndex < nLasPos; nIndex++)
 	{
-		if(m_szData[nIndex] >= 'a' && m_szData[nIndex] <= 'z')
-		{
-			m_szData[nIndex] = m_szData[nIndex] - 32;
-		}
+		m_szData[nIndex] = ToUpperCase(m_szData[nIndex]);
 	}
 }
 
@@ -370,13 +414,168 @@ void MyStructs::CMyString::ToLowerCase(size_t nStartPos, size_t nLasPos) noexcep
 
 	for(size_t nIndex = nStartPos; nIndex < nLasPos; nIndex++)
 	{
-		if(m_szData[nIndex] >= 'A' && m_szData[nIndex] < 'Z')
+		m_szData[nIndex] = ToLowerCase(m_szData[nIndex]);
+	}
+}
+
+MyStructs::CMyString MyStructs::CMyString::Reverse() const noexcept
+{
+	if(m_szData == nullptr && m_nSize <= 2)
+	{
+		return CMyString(nullptr);
+	}
+
+	CMyString newString{*this};
+
+	for(size_t nIndex = 0; nIndex < newString.size() / 2 - 1; nIndex++){
+		std::swap(newString.m_szData[nIndex], newString.m_szData[newString.size() - nIndex - 2]);
+	}
+
+	return newString;
+}
+
+
+bool MyStructs::CMyString::Compare(const CMyString& cStringToCompare) const noexcept
+{
+	if(size() != cStringToCompare.size())
+	{
+		return false;
+	}
+	// If both strings have nullptrs they are equal
+	if(data() == nullptr && cStringToCompare.data() == nullptr)
+	{
+		return true;
+	}
+	
+	return CheckEquality(data(), cStringToCompare.data(), size());
+}
+
+
+bool MyStructs::CMyString::Compare(const char* cszStringToCompare) const noexcept
+{
+	if(m_szData == nullptr && cszStringToCompare == nullptr)
+	{
+		return true;
+	}
+
+	size_t nLength = GetStringLength(cszStringToCompare);
+	if(nLength != m_nSize)
+	{
+		return false;
+	}
+
+	return CheckEquality(data(), cszStringToCompare, size());
+}
+
+bool MyStructs::CMyString::Compare(const CMyString& cStringToCompare, size_t nStartPos, size_t nLength) const noexcept
+{
+
+	if(IsOutOfBounds(nStartPos, nLength) && cStringToCompare.IsOutOfBounds(0, nLength))
+	{
+		printf("Given range is invalid!\n");
+		return false;
+	}
+
+	return CheckEquality(data() + nStartPos, cStringToCompare.data(), nLength);
+}
+bool MyStructs::CMyString::Compare(const char* cszStringToCompare, size_t nStartPos, size_t nLength) const noexcept
+{
+	size_t nSecondStringLength = GetStringLength(cszStringToCompare);
+
+	if(IsOutOfBounds(nStartPos, nLength) && nLength > nSecondStringLength)
+	{
+		printf("Given range is invalid!\n");
+		return false;
+	}
+
+	return CheckEquality(data() + nStartPos, cszStringToCompare, nLength);
+}
+
+
+
+void MyStructs::CMyString::ReplaceWithString(
+	const char* cszStartSequence, const char *cszStringReplace, 
+	size_t nReplaceStart, size_t nReplaceLength) noexcept
+{
+	const size_t cnReplaceEnd = nReplaceStart + nReplaceLength;
+	for(size_t nIndex = 0; nIndex < size() - 1; nIndex++)
+	{
+		if(nIndex < nReplaceStart || nIndex >= cnReplaceEnd)
 		{
-			m_szData[nIndex] = m_szData[nIndex] + 32;
+			m_szData[nIndex] = cszStartSequence[nIndex];
+		} else 
+		{
+			m_szData[nIndex] = cszStringReplace[nIndex - nReplaceStart];
 		}
 	}
 
 }
+
+MyStructs::CMyString MyStructs::CMyString::Replace(
+	const CMyString& cStrToInput, size_t nPos, size_t nLength) const noexcept
+{
+	CMyString newString{nullptr};
+	if(nLength > cStrToInput.size() || nPos >= size())
+	{
+		printf("Given range is invalid!!\n");
+		return newString;
+	}
+
+	if(nPos + nLength <= size())
+	{
+		--nLength; // Minusing one to exclude terminant from cszStrToInput
+		newString.m_nSize = size();
+	} else 
+	{
+		newString.m_nSize = nPos + nLength + (nLength != cStrToInput.size());
+	}
+
+	newString.TryToAllocate(newString.m_nSize);
+	if(newString.m_szData == nullptr)
+	{
+		return newString;
+	}
+
+	newString.ReplaceWithString(data(), cStrToInput.data(), nPos, nLength);
+
+	newString.m_szData[newString.size() - 1] = '\0';
+
+	return newString;
+}
+
+MyStructs::CMyString MyStructs::CMyString::Replace(
+	const char* cszStrToInput, size_t nPos, size_t nLength) const noexcept
+{
+	CMyString newString{nullptr};
+	const size_t cnStrLen = GetStringLength(cszStrToInput);
+
+	if(nLength > cnStrLen || nPos >= size())
+	{
+		return newString;
+	}
+	
+	if(nPos + nLength <= size())
+	{
+		--nLength; // Minusing one to exclude terminant from cszStrToInput
+		newString.m_nSize = size();
+	} else 
+	{
+		newString.m_nSize = nPos + nLength + (nLength != cnStrLen);
+	}
+
+	newString.TryToAllocate(newString.m_nSize);
+	if(newString.m_szData == nullptr)
+	{
+		return newString;
+	}
+
+	newString.ReplaceWithString(data(), cszStrToInput, nPos, nLength);
+
+	newString.m_szData[newString.size() - 1] = '\0';
+
+	return newString;
+}
+
 
 std::optional<int> MyStructs::CMyString::ToInt() const noexcept 
 {
@@ -416,14 +615,14 @@ MyStructs::CMyString MyStructs::CMyString::FromInt(int iToConvert) noexcept
 		++nRadixCount;
 	}
 
-	CMyString newString;
+	CMyString newString{nullptr};
 	// Taking in mind '\0' and '-' sign if number is negative
 	newString.TryToAllocate(nRadixCount + 1 + (iToConvert < 0));
 
 	iNumber = iToConvert;
 	for(size_t nCurrentRadix = 0; nCurrentRadix < nRadixCount; nCurrentRadix++)
 	{
-		newString[nCurrentRadix] = iNumber % 10 + 48;
+		newString[nRadixCount - 1 - nCurrentRadix] = iNumber % 10 + 48;
 		iNumber /= 10;
 	}
 
@@ -431,7 +630,7 @@ MyStructs::CMyString MyStructs::CMyString::FromInt(int iToConvert) noexcept
 	{
 		newString[newString.size() - 2] = '-';
 	}
-	newString[newString.size() - 1] = '\n';
+	newString[newString.size() - 1] = '\0';
 
 	return newString;
 }
@@ -495,6 +694,75 @@ std::optional<double> MyStructs::CMyString::ToDouble() const noexcept
 	return dNewDoubleVal;
 }
 
+MyStructs::CMyString MyStructs::CMyString::FromDouble(double dToConvert, size_t nPrecision) noexcept
+{
+	const bool cbIsNegative = dToConvert < 0;
+
+	long long llIntegerPart = std::floor(std::abs(dToConvert));
+
+	const double dFractionPart = std::abs(dToConvert) - llIntegerPart;
+	long long llParsedFraction = std::abs(dFractionPart * 
+		std::pow(10, std::numeric_limits<double>::digits10));
+	
+	// Counting radixes
+	size_t nIntegerRadixCount = 0;
+	long long llOperatedValue = llIntegerPart;
+	while(llOperatedValue > 0)
+	{
+		++nIntegerRadixCount;
+		llOperatedValue /= 10;
+	}
+	size_t nFractionRadixCount = 0;
+	llOperatedValue = llParsedFraction;
+	while(llOperatedValue > 0)
+	{
+		++nFractionRadixCount;
+		llOperatedValue /= 10;
+	}
+	if(nPrecision < nFractionRadixCount)
+	{
+		for(size_t nRadix = 0; nRadix < nFractionRadixCount - nPrecision; nRadix++)
+		{
+			llParsedFraction /= 10;
+		}
+		nFractionRadixCount = nPrecision;
+	}
+
+	CMyString newString{nullptr};
+	// Adding 1 for dot + 1 for \0 and taking in mind negative value
+	newString.m_nSize = nIntegerRadixCount + nFractionRadixCount + 2 + cbIsNegative;
+	newString.TryToAllocate(newString.m_nSize); 
+	if(newString.data() == nullptr)
+	{
+		printf("Failed to alocate data\n");
+		return newString;
+	}
+
+	
+	for(size_t nIndex = cbIsNegative; nIndex < newString.size() - 1; nIndex++)
+	{
+		const size_t nRealIndex = newString.size() - nIndex - 1 - !cbIsNegative;
+		if(nRealIndex < nIntegerRadixCount + cbIsNegative)
+		{
+			newString.m_szData[nRealIndex] = (char)(llIntegerPart % 10 + 48);
+			llIntegerPart /= 10;
+		} else if(nRealIndex > nIntegerRadixCount + cbIsNegative)
+		{
+			newString.m_szData[nRealIndex] = (char)(llParsedFraction % 10 + 48);
+			llParsedFraction /= 10;
+		}
+	}
+
+	newString.m_szData[nIntegerRadixCount + cbIsNegative] = '.';
+	if(cbIsNegative)
+	{
+		newString.m_szData[0] = '-';
+	}
+	newString.m_szData[newString.size() - 1] = '\0';
+
+	return newString;
+}
+
 
 MyStructs::CMyString& MyStructs::CMyString::operator=(const char* cpszCharsSequence)
 {
@@ -508,27 +776,4 @@ MyStructs::CMyString MyStructs::CMyString::operator+(const CMyString& cStringToA
 	newString.AppendToString(cStringToAdd.data());
 
 	return newString;
-}
-// Checks if each character in strings are equal, also empty strings are equal
-bool MyStructs::CMyString::operator==(const CMyString& cStringToCompare) const
-{
-	if(size() != cStringToCompare.size())
-	{
-		return false;
-	}
-	// If both strings have nullptrs they are equal
-	if(data() == nullptr && cStringToCompare.data() == nullptr)
-	{
-		return true;
-	}
-	
-	for(std::size_t nIndex = 0; nIndex < size(); nIndex++)
-	{
-		if(m_szData[nIndex] != cStringToCompare[nIndex])
-		{
-			return false;
-		}
-	}
-
-	return true;
 }
