@@ -516,11 +516,15 @@ TEST(CMyStringTest, FailLowerCaseTest)
 TEST(CMyStringTest, SuccessToIntTest)
 {
 	MyStructs::CMyString numberString{"100"};
-	std::optional<int> parsedValue{atoi(numberString.data())};
+	std::optional<int> parsedValue{100};
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 	
 	numberString = "2394";
 	parsedValue = 2394;
+	ASSERT_EQ(parsedValue, numberString.ToInt());
+
+	numberString = "-255";
+	parsedValue = -255;
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 }
 
@@ -535,6 +539,9 @@ TEST(CMyStringTest, FailToIntTest)
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 
 	numberString = "";
+	ASSERT_EQ(parsedValue, numberString.ToInt());
+
+	numberString = "-5-4";
 	ASSERT_EQ(parsedValue, numberString.ToInt());
 
 	numberString = nullptr;
@@ -558,6 +565,10 @@ TEST(CMyStringTest, SuccessFromIntTest)
 
 	string = MyStructs::CMyString::FromInt(100000);
 	sprintf(szRealConverted, "%d", 100000);
+	ASSERT_STREQ(string.data(), szRealConverted);
+
+	string = MyStructs::CMyString::FromInt(-255);
+	sprintf(szRealConverted, "%d", -255);
 	ASSERT_STREQ(string.data(), szRealConverted);
 
 	delete[] szRealConverted;
@@ -606,6 +617,12 @@ TEST(CMyStringTest, FailToDoubleTest)
 	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
 
 	myNewDoubleString = "0.45.";
+	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
+
+	myNewDoubleString = "";
+	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
+
+	myNewDoubleString = nullptr;
 	ASSERT_EQ(myNewDoubleString.ToDouble(), std::nullopt);
 }
 
@@ -803,6 +820,9 @@ TEST(CMyString, SuccessCompareTest)
 
 	ASSERT_TRUE(cFourthStringToCompare.Compare(cSeventhStringToCompare, false));
 	ASSERT_TRUE(cFourthStringToCompare.Compare(cSeventhStringToCompare.data(), false));
+
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cSeventhStringToCompare, 5, 4, false));
+	ASSERT_FALSE(cFifthStringToCompare.Compare(cSeventhStringToCompare.data(), 5, 4, false));
 }
 
 TEST(CMyStringTest, FailCompareTest)
@@ -860,11 +880,28 @@ TEST(CMyString, SuccessFormatTest)
 
 TEST(CMyString, FailFormatTest)
 {
-	const MyStructs::CMyString stringToFormat{"Non working %lul Other non working %d"};
+	MyStructs::CMyString stringToFormat{"Non working %lul Other non working %d"};
 
 	MyStructs::CMyString formatedString = MyStructs::CMyString::Format(stringToFormat, 4, 5);
 	ASSERT_EQ(formatedString.data(), nullptr);
-
 	formatedString = MyStructs::CMyString::Format(stringToFormat.data(), 4, 5);
+	ASSERT_EQ(formatedString.data(), nullptr);
+
+	stringToFormat = nullptr;
+	formatedString = MyStructs::CMyString::Format(stringToFormat);
+	ASSERT_EQ(formatedString.data(), nullptr);
+	formatedString = MyStructs::CMyString::Format(stringToFormat.data());
+	ASSERT_EQ(formatedString.data(), nullptr);
+
+	stringToFormat = "";
+	formatedString = MyStructs::CMyString::Format(stringToFormat);
+	ASSERT_EQ(formatedString.data(), nullptr);
+	formatedString = MyStructs::CMyString::Format(stringToFormat.data());
+	ASSERT_EQ(formatedString.data(), nullptr);
+
+	stringToFormat = "Non working %";
+	formatedString = MyStructs::CMyString::Format(stringToFormat);
+	ASSERT_EQ(formatedString.data(), nullptr);
+	formatedString = MyStructs::CMyString::Format(stringToFormat.data());
 	ASSERT_EQ(formatedString.data(), nullptr);
 }

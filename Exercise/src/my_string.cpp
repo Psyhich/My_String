@@ -55,7 +55,7 @@ bool MyStructs::CMyString::CheckEquality(const char* cszFirstString, const char 
 MyStructs::CMyString MyStructs::CMyString::ParseFormater(const CMyString &cFormaterToParse, va_list &args)
 {
 	CMyString newString{nullptr};
-	if(cFormaterToParse.size() < 1)
+	if(cFormaterToParse.size() <= 1)
 	{
 		return newString;
 	}
@@ -110,7 +110,7 @@ MyStructs::CMyString MyStructs::CMyString::ParseFormatString(const char *cszStri
 	CMyString readParam{};
 	
 	// Counting new size
-	for(size_t nIndex = 0; nIndex < nSize - 1; nIndex++)
+	for(size_t nIndex = 0; nIndex < nSize; nIndex++)
 	{
 		const char cchCurrentChar = cszStringToFormat[nIndex];
 		if(cchCurrentChar == '%' && !bIsRedingFormater)
@@ -797,22 +797,27 @@ std::optional<int> MyStructs::CMyString::ToInt() const noexcept
 	{
 		return std::nullopt;
 	}
+
+	const bool cbIsNegative = (m_szData[0] == '-');
 	int iConstructedNumber = 0;
 	int iCurrentPower = 1;
-	for(size_t nIndex = 0; nIndex < size() - 1; nIndex++)
+
+	for(size_t nIndex = 0; nIndex < size() - 1 - cbIsNegative; nIndex++)
 	{
 		const int ciCurrentChar = (int)m_szData[size() - 2 - nIndex];
 		if(ciCurrentChar >= 48 && ciCurrentChar <= 57)
 		{
 			iConstructedNumber += iCurrentPower  * (ciCurrentChar - 48);
-		} else if(ciCurrentChar == '-') 
-		{
-			iConstructedNumber *= -1;
 		} else 
 		{
 			return std::nullopt;
 		}
 		iCurrentPower *= 10;
+	}
+
+	if(cbIsNegative)
+	{
+		iConstructedNumber *= -1;
 	}
 
 	return iConstructedNumber;
@@ -829,20 +834,23 @@ MyStructs::CMyString MyStructs::CMyString::FromInt(int iToConvert) noexcept
 		++nRadixCount;
 	}
 
+	const bool cbIsNegative = iToConvert < 0;
+
 	CMyString newString{nullptr};
 	// Taking in mind '\0' and '-' sign if number is negative
-	newString.TryToAllocate(nRadixCount + 1 + (iToConvert < 0));
+	newString.TryToAllocate(nRadixCount + 1 + cbIsNegative);
 
-	iNumber = iToConvert;
+
+	iNumber = std::abs(iToConvert);
 	for(size_t nCurrentRadix = 0; nCurrentRadix < nRadixCount; nCurrentRadix++)
 	{
-		newString[nRadixCount - 1 - nCurrentRadix] = iNumber % 10 + 48;
+		newString[nRadixCount - 1 - nCurrentRadix + cbIsNegative] = iNumber % 10 + 48;
 		iNumber /= 10;
 	}
 
-	if(iToConvert < 0)
+	if(cbIsNegative)
 	{
-		newString[newString.size() - 2] = '-';
+		newString[0] = '-';
 	}
 	newString[newString.size() - 1] = '\0';
 
