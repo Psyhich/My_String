@@ -1,15 +1,17 @@
+#include <cstdarg>
 #include <cstddef>
 #include <new>
 #include <iostream>
 #include <cmath>
 #include <limits>
+#include <list>
 
 #include "my_string.h"
 
 char MyStructs::CMyString::ToLowerCase(char chCharToTranslate)
 {
 	constexpr const int ciACharValue = 32;
-	if(chCharToTranslate >= 'A' && chCharToTranslate < 'Z')
+	if(chCharToTranslate >= 'A' && chCharToTranslate <= 'Z')
 	{
 		return chCharToTranslate + ciACharValue;
 	}
@@ -48,6 +50,130 @@ bool MyStructs::CMyString::CheckEquality(const char* cszFirstString, const char 
 		}
 	}
 	return true;
+}
+
+MyStructs::CMyString MyStructs::CMyString::ParseFormater(const CMyString &cFormaterToParse, va_list &args)
+{
+	CMyString newString{nullptr};
+	if(cFormaterToParse.size() < 1)
+	{
+		return newString;
+	}
+
+	const char cchLastChar = cFormaterToParse[cFormaterToParse.size() - 2];
+	switch (cchLastChar) {
+		case 'd':
+		{
+			int parsedDecimal = va_arg(args, int);
+			newString = CMyString::FromInt(parsedDecimal);
+			break;
+		}
+		case 'f':
+		{
+			float parsedFloat = va_arg(args, double);
+			newString = CMyString::FromDouble(parsedFloat);
+			break;
+		}
+		case 'c':
+		{
+			char parsedChar = va_arg(args, int);
+			newString = parsedChar;
+			break;
+		}
+		case 's':
+		{
+			newString = va_arg(args, char*);
+			break;
+		}
+		case '%':
+		{
+			newString = '%';
+			break;
+		}
+	}
+
+	return newString;
+}
+
+MyStructs::CMyString MyStructs::CMyString::ParseFormatString(const char *cszStringToFormat, size_t nSize, va_list &args) {
+
+	CMyString formatedString{nullptr};
+	if(cszStringToFormat == nullptr || nSize <= 1)
+	{
+		return formatedString;
+	}
+
+	size_t nNewSize = 0;
+	bool bIsRedingFormater = false;
+
+	std::list<CMyString> parameters{};
+	CMyString readParam{};
+	
+	// Counting new size
+	for(size_t nIndex = 0; nIndex < nSize - 1; nIndex++)
+	{
+		const char cchCurrentChar = cszStringToFormat[nIndex];
+		if(cchCurrentChar == '%' && !bIsRedingFormater)
+		{
+			bIsRedingFormater = true;
+		} else if(bIsRedingFormater)
+		{
+			readParam = readParam + CMyString(cchCurrentChar);
+			if(IsStopCharacter(cchCurrentChar))
+			{
+				bIsRedingFormater = false;
+
+				CMyString newString = ParseFormater(readParam, args);
+				// If we cannot parse it return nothing
+				if(newString.data() == nullptr)
+				{
+					return CMyString(nullptr);
+				}
+				nNewSize += newString.size() - 1;
+
+				parameters.push_back(newString);
+				readParam = "";
+			}
+		} else {
+			nNewSize += 1;
+		}
+	}
+
+	formatedString.TryToAllocate(nNewSize);
+	if(formatedString.data() == nullptr)
+	{
+		va_end(args);
+		return formatedString;
+	}
+
+	// Now creating new string with all data inserted
+	size_t nFormatedIndex = 0;
+	bool bIsSkipping = false;
+	for(size_t nUnformatedIndex = 0; nUnformatedIndex < nSize; nUnformatedIndex++)
+	{
+		const char cchCurrentChar = cszStringToFormat[nUnformatedIndex];
+		if(bIsSkipping && IsStopCharacter(cchCurrentChar))
+		{
+			CMyString paramString = parameters.front();
+			for(size_t nParamIndex = 0; nParamIndex < paramString.size() - 1; nParamIndex++)
+			{
+				formatedString[nFormatedIndex] = paramString[nParamIndex];
+				++nFormatedIndex;
+			}
+
+			parameters.pop_front();
+			bIsSkipping = false;
+		} else if(cchCurrentChar == '%')
+		{
+			bIsSkipping = true;
+		} else if(!bIsSkipping)
+		{
+			formatedString[nFormatedIndex] = cchCurrentChar;
+			++nFormatedIndex;
+		}
+	}
+
+	return formatedString;
 }
 
 /*
@@ -201,6 +327,17 @@ MyStructs::CMyString::CMyString(const char* cszCharsSequence)
 	TryToAllocate(GetStringLength(cszCharsSequence));
 
 	CopyString(cszCharsSequence);
+}
+
+
+MyStructs::CMyString::CMyString(char chCharToAssign)
+{
+	TryToAllocate(2);
+	if(m_szData != nullptr)
+	{
+		m_szData[0] = chCharToAssign;
+		m_szData[1] = '\0';
+	}
 }
 
 MyStructs::CMyString::CMyString(const MyStructs::CMyString& cStringToCopy)
@@ -452,10 +589,10 @@ bool MyStructs::CMyString::Compare(const CMyString& cStringToCompare, bool bIsCa
 	
 	if(bIsCaseSensitive)
 	{
-		return CheckEquality(data(), cStringToCompare.data(), size());
+		return CheckEquality(data(), cStringToCompare.data(), size() - 1);
 	} else 
 	{
-		return CheckEqualityCaseInsensitive(data(), cStringToCompare.data(), size());
+		return CheckEqualityCaseInsensitive(data(), cStringToCompare.data(), size() - 1);
 	}
 }
 
@@ -475,10 +612,10 @@ bool MyStructs::CMyString::Compare(const char* cszStringToCompare, bool bIsCaseS
 
 	if(bIsCaseSensitive)
 	{
-		return CheckEquality(data(), cszStringToCompare, size());
+		return CheckEquality(data(), cszStringToCompare, size() - 1);
 	} else 
 	{
-		return CheckEqualityCaseInsensitive(data(), cszStringToCompare, size());
+		return CheckEqualityCaseInsensitive(data(), cszStringToCompare, size() - 1);
 	}
 }
 
@@ -629,6 +766,30 @@ MyStructs::CMyString MyStructs::CMyString::Replace(
 	return newString;
 }
 
+MyStructs::CMyString MyStructs::CMyString::Format(const CMyString& cFormatString...)
+{
+	std::va_list args;
+	va_start(args, &cFormatString);
+	
+	CMyString formatedString = ParseFormatString(cFormatString.data(), cFormatString.size(), args);
+	
+	va_end(args);
+	return formatedString;
+}
+
+MyStructs::CMyString MyStructs::CMyString::Format(const char* cszFormatString...)
+{
+	std::va_list args;
+
+	va_start(args, cszFormatString);
+	
+	size_t nSize = GetStringLength(cszFormatString);
+
+	CMyString formatedString = ParseFormatString(cszFormatString, nSize, args);
+	
+	va_end(args);
+	return formatedString;
+}
 
 std::optional<int> MyStructs::CMyString::ToInt() const noexcept 
 {
@@ -823,6 +984,13 @@ MyStructs::CMyString& MyStructs::CMyString::operator=(const char* cpszCharsSeque
 	ReinitializeAndCopy(cpszCharsSequence, nNewSize);
 	return *this;
 }
+
+MyStructs::CMyString& MyStructs::CMyString::operator=(char chCharToAssign)
+{
+	*this = CMyString(chCharToAssign);
+	return *this;
+}
+
 MyStructs::CMyString MyStructs::CMyString::operator+(const CMyString& cStringToAdd) const noexcept
 {
 	CMyString newString = this->data();

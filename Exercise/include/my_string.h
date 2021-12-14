@@ -3,6 +3,7 @@
 
 #include <optional>
 #include <cstddef>
+#include <cstdarg>
 
 namespace MyStructs 
 {
@@ -15,6 +16,7 @@ namespace MyStructs
 	public:
 		// Using rule of 3
 		CMyString(const char *cszCharsSequence="");
+		CMyString(char chCharToAssign);
 		
 		CMyString(const CMyString& cStringToCopy);
 		CMyString& operator=(const CMyString& cStringToCopy);
@@ -105,7 +107,11 @@ namespace MyStructs
 		CMyString Replace(const CMyString& cStrToInput, size_t nPos, size_t nLength) const noexcept;
 		CMyString Replace(const char* cszStrToInput, size_t nPos, size_t nLength) const noexcept;
 
+		static CMyString Format(const CMyString& cFormatString, ...);
+		static CMyString Format(const char* cszFormatString, ...);
+
 		CMyString& operator=(const char* cpcCharsSequence);
+		CMyString& operator=(char chCharToAssgin);
 		CMyString operator+(const CMyString& cStringToAdd) const noexcept;
 		inline bool operator==(const CMyString& cStringToCompare) const noexcept 
 		{
@@ -140,6 +146,15 @@ namespace MyStructs
 
 		static char ToLowerCase(char chCharToTranslate);
 		static char ToUpperCase(char chCharToTranslate);
+
+		static CMyString ParseFormatString(const char *cszStringToFormat, size_t nSize, va_list &args);
+		static CMyString ParseFormater(const CMyString &cFormaterToParse, va_list &vpParameter);
+		static inline bool IsStopCharacter(char chInputChar)
+		{
+			return chInputChar == 'd' || chInputChar == 'f' || 
+				chInputChar == 'c' || chInputChar == 's' || 
+				chInputChar == '%' || chInputChar == '\0' || chInputChar == ' ';
+		}
 	private:
 		size_t m_nSize{0};
 		char *m_szData{nullptr};

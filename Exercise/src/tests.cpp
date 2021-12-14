@@ -35,6 +35,12 @@ TEST_F(CMyStringBaseFunctionalityFixture, DataCorrectnesTest)
 	ASSERT_EQ(nTestDataLength, myString.size());
 	ASSERT_STREQ(szTestData, myString.data());
 	ASSERT_EQ(szTestData[nTestDataLength - 1], '\0');
+
+	const char cchCharToAssign = 'a';
+	const char* cszCharAssigned = "a";
+	MyStructs::CMyString charStr{cchCharToAssign};
+	ASSERT_EQ(charStr.size(), 2);
+	ASSERT_STREQ(charStr.data(), cszCharAssigned);
 }
 
 TEST_F(CMyStringBaseFunctionalityFixture, DataCopyTest)
@@ -753,6 +759,8 @@ TEST(CMyString, SuccessCompareTest)
 	const MyStructs::CMyString cThirdStringToCompare{nullptr};
 	const MyStructs::CMyString cFourthStringToCompare{"some"};
 	const MyStructs::CMyString cFifthStringToCompare{"some very very very looooong string with realy lot of some words"};
+	const MyStructs::CMyString cSixthStringToCompare{"somE wOrds"};
+	const MyStructs::CMyString cSeventhStringToCompare{"somE"};
 
 	ASSERT_TRUE(cStartString.Compare(cFirstStringToCompare));
 	ASSERT_TRUE(cStartString.Compare(cFirstStringToCompare.data()));
@@ -783,6 +791,18 @@ TEST(CMyString, SuccessCompareTest)
 
 	ASSERT_TRUE(cFifthStringToCompare.Compare(cFourthStringToCompare, 0, 4));
 	ASSERT_TRUE(cFifthStringToCompare.Compare(cFourthStringToCompare.data(), 0, 4));
+
+	ASSERT_FALSE(cFourthStringToCompare.Compare(cSixthStringToCompare, 0, 4));
+	ASSERT_FALSE(cFourthStringToCompare.Compare(cSixthStringToCompare.data(), 0, 4));
+
+	ASSERT_FALSE(cFourthStringToCompare.Compare(cSeventhStringToCompare));
+	ASSERT_FALSE(cFourthStringToCompare.Compare(cSeventhStringToCompare.data()));
+
+	ASSERT_TRUE(cFourthStringToCompare.Compare(cSixthStringToCompare, 0, 4, false));
+	ASSERT_TRUE(cFourthStringToCompare.Compare(cSixthStringToCompare.data(), 0, 4, false));
+
+	ASSERT_TRUE(cFourthStringToCompare.Compare(cSeventhStringToCompare, false));
+	ASSERT_TRUE(cFourthStringToCompare.Compare(cSeventhStringToCompare.data(), false));
 }
 
 TEST(CMyStringTest, FailCompareTest)
@@ -806,4 +826,45 @@ TEST(CMyStringTest, FailCompareTest)
 
 	ASSERT_FALSE(cStartString.Compare(cStartString, 0, 100));
 	ASSERT_FALSE(cStartString.Compare(cStartString.data(), 0, 100));
+}
+
+// -----------------------------
+// |		Format tests	   |
+// -----------------------------
+TEST(CMyString, SuccessFormatTest)
+{
+	MyStructs::CMyString stringToFormat{"Int: %d Double: %f Char: %c String: %s Percent: %%"};
+	MyStructs::CMyString rightFormatedString{"Int: 10 Double: 2.500 Char: a String: hello Percent: %"};
+
+	MyStructs::CMyString formatedString = MyStructs::CMyString::Format(stringToFormat, 10, 2.5, 'a', "hello");
+	ASSERT_STREQ(formatedString.data(), rightFormatedString.data());
+
+	formatedString = MyStructs::CMyString::Format(stringToFormat.data(), 10, 2.5, 'a', "hello");
+	ASSERT_STREQ(formatedString.data(), rightFormatedString.data());
+
+	stringToFormat = "Int: %lld Double: %llf Char: %c String: %lls Percent: %ll%";
+	formatedString = MyStructs::CMyString::Format(stringToFormat, 10, 2.5, 'a', "hello");
+	ASSERT_STREQ(formatedString.data(), rightFormatedString.data());
+
+	formatedString = MyStructs::CMyString::Format(stringToFormat.data(), 10, 2.5, 'a', "hello");
+	ASSERT_STREQ(formatedString.data(), rightFormatedString.data());
+
+	stringToFormat = "Ints: %d%d%d";
+	rightFormatedString = "Ints: 101010";
+	formatedString = MyStructs::CMyString::Format(stringToFormat, 10, 10, 10);
+	ASSERT_STREQ(formatedString.data(), rightFormatedString.data());
+
+	formatedString = MyStructs::CMyString::Format(stringToFormat.data(), 10, 10, 10);
+	ASSERT_STREQ(formatedString.data(), rightFormatedString.data());
+}
+
+TEST(CMyString, FailFormatTest)
+{
+	const MyStructs::CMyString stringToFormat{"Non working %lul Other non working %d"};
+
+	MyStructs::CMyString formatedString = MyStructs::CMyString::Format(stringToFormat, 4, 5);
+	ASSERT_EQ(formatedString.data(), nullptr);
+
+	formatedString = MyStructs::CMyString::Format(stringToFormat.data(), 4, 5);
+	ASSERT_EQ(formatedString.data(), nullptr);
 }
