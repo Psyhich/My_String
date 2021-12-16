@@ -3,18 +3,20 @@
 
 #include <optional>
 #include <cstddef>
+#include <cstdarg>
 
 namespace MyStructs 
 {
 	/*
 	* STL like class for storing and using zero terminated string
-	* All specified ranges will exclude last value and include the first one
+	* All specified ranges will include the first value and the last one
 	*/
 	class CMyString 
 	{ 
 	public:
 		// Using rule of 3
 		CMyString(const char *cszCharsSequence="");
+		CMyString(char chCharToAssign);
 		
 		CMyString(const CMyString& cStringToCopy);
 		CMyString& operator=(const CMyString& cStringToCopy);
@@ -89,9 +91,32 @@ namespace MyStructs
 			ToLowerCase(0, size() - 1);
 		}
 
+		CMyString Reverse() const noexcept;
+
+		std::optional<int> ToInt() const noexcept;
+		static CMyString FromInt(int iToConvert) noexcept;
+
+		std::optional<double> ToDouble() const noexcept;
+		static CMyString FromDouble(double iToConvert, size_t precision=3) noexcept;
+
+		bool Compare(const CMyString& cStringToCompare, bool bIsCaseSensitive=true) const noexcept;
+		bool Compare(const char* cszStringToCompare, bool bIsCaseSensitive=true) const noexcept;
+		bool Compare(const CMyString& cStringToCompare, size_t nStartPos, size_t nLength, bool bIsCaseSensitive=true) const noexcept;
+		bool Compare(const char* cszStringToCompare, size_t nStartPos, size_t nLength, bool bIsCaseSensitive=true) const noexcept;
+
+		CMyString Replace(const CMyString& cStrToInput, size_t nPos, size_t nLength) const noexcept;
+		CMyString Replace(const char* cszStrToInput, size_t nPos, size_t nLength) const noexcept;
+
+		static CMyString Format(const CMyString& cFormatString, ...);
+		static CMyString Format(const char* cszFormatString, ...);
+
 		CMyString& operator=(const char* cpcCharsSequence);
-		CMyString operator+(const CMyString& cStringToAdd) const;
-		bool operator==(const CMyString& cStringToCompare) const;
+		CMyString& operator=(char chCharToAssgin);
+		CMyString operator+(const CMyString& cStringToAdd) const noexcept;
+		inline bool operator==(const CMyString& cStringToCompare) const noexcept 
+		{
+			return Compare(cStringToCompare);
+		}
 
 		inline char operator[](std::size_t sIndex) const { return m_szData[sIndex]; }
 		inline char& operator[](std::size_t sIndex) { return m_szData[sIndex]; }
@@ -102,7 +127,7 @@ namespace MyStructs
 		void AppendToString(const char *cszStringToAppend);
 		void ReinitializeAndCopy(const char* cpszStringToCopy, const size_t& nStringLength);
 		void TryToAllocate(const size_t nLength) noexcept;
-		inline bool IsReachedTerminator(size_t nPosition, size_t nCountOfChars)
+		inline bool IsReachedTerminator(size_t nPosition, size_t nCountOfChars) const noexcept
 		{
 			return nPosition + nCountOfChars == size();
 		}
@@ -110,6 +135,25 @@ namespace MyStructs
 		{
 			return nPosition > size() || nCountOfChars == 0 || 
 				nCountOfChars > size();
+		}
+		/*
+		* Can only be used in compare functions, don't use it raw
+		* */
+		static bool CheckEquality(const char* cszFirstString, const char *cszSecondString, size_t nLengthToCheck);
+		static bool CheckEqualityCaseInsensitive(const char* cszFirstString, const char *cszSecondString, size_t nLengthToCheck);
+
+		void ReplaceWithString(const char* cszStartSequence, const char *cszStringReplace, size_t nPos, size_t nLength) noexcept;
+
+		static char ToLowerCase(char chCharToTranslate);
+		static char ToUpperCase(char chCharToTranslate);
+
+		static CMyString ParseFormatString(const char *cszStringToFormat, size_t nSize, va_list &args);
+		static CMyString ParseFormater(const CMyString &cFormaterToParse, va_list &vpParameter);
+		static inline bool IsStopCharacter(char chInputChar)
+		{
+			return chInputChar == 'd' || chInputChar == 'f' || 
+				chInputChar == 'c' || chInputChar == 's' || 
+				chInputChar == '%' || chInputChar == '\0' || chInputChar == ' ';
 		}
 	private:
 		size_t m_nSize{0};
